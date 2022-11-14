@@ -2,9 +2,7 @@
 -- Lehuta 466
 -- 11/13/22
 
---CREATE DATABASE webstore;
-
-USE webstore;
+USE z1920718
 
 CREATE TABLE User (
 
