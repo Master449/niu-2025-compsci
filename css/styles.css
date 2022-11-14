@@ -10,6 +10,27 @@ body {
   padding: 0;
 }
 
+h1 {
+  font-family: "Sono", sans-serif;
+  font-size: 3em;
+  color: #011627;
+  text-align: center;
+  margin: 0;
+}
+
+h4 {
+  font-family: "Sono", sans-serif;
+  font-size: 1.5em;
+  color: #011627;
+  text-align: center;
+  margin: 0;
+  padding: 0;
+}
+
+#title {
+  padding: 50px 0;
+}
+
 #nav {
   margin: 0 0 0 0;
   padding: 0;
@@ -25,15 +46,16 @@ body {
 #nav ul {
   list-style-type: none;
   text-decoration: none;
-  height: 100%;
-  width: 100%;
+  text-align: center;
   padding: 10px 0;
+  display: block;
+  margin: 0 auto;
+  width: 50%;
 }
 #nav ul li {
   text-decoration: none;
   display: inline;
-  padding: 2% 5%;
-  width: 100%;
+  padding: 0 5%;
 }
 #nav ul li a {
   font-size: 24px;
@@ -70,11 +92,6 @@ body {
 }
 #products table tr {
   width: 100%;
-}
-#products table tr td {
-  font-size: 24px;
-  margin: 200px 0 0 0;
-  width: 30%;
 }
 #products table tr td br {
   display: none;
