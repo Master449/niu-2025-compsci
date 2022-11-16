@@ -140,7 +140,27 @@ h4 {
   padding: 10px 20px;
   margin: 5% 0;
 }
+#product table select {
+  font-size: 24px;
+  padding: 10px 20px;
+  margin: 5% 0;
+}
 #product table img {
   height: 400px;
   border-radius: 5%;
+}
+
+#account {
+  display: flex;
+  justify-content: center;
+}
+#account .button {
+  background-color: #D72638;
+  color: white;
+  font-size: 24px;
+  border: none;
+  border-radius: 5%;
+  padding: 10px 20px;
+  margin: 5% 0;
+  width: 100%;
 }/*# sourceMappingURL=styles.css.map */
