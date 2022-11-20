@@ -22,26 +22,40 @@
             <div id="title"><h1>Welcome to Placeholder Mart</h1>
             <h4>We got groceries or something.</h4></div>
             <div id="products">
-                <table>
-                    <tr><!-- 
-                        With this I can think we could try to pass a hidden value to
-                        the next page with the product id. Then we can use that id
-                        to query the database for the product information. -->
-                        <td><a href="pages/product.html"><img src="images/placeholder.png"></a></td>
-                        <td><h3>Banana</h3> <br> <p>Yellow Fruit lmao.</p> </td>
-                        <td><p id="price">$0.11</p></td>
-                    </tr>
-                    <tr>
-                        <td><a href="pages/product.html"><img src="images/placeholder.png"></td>
-                        <td><h3>Apple</h3> <br> <p>Please pretend the photo is an apple.</p> </td>
-                        <td><p id="price">$3.02</p></td>
-                    </tr>
-                    <tr>
-                        <td><a href="pages/product.html"><img src="images/placeholder.png"></td>
-                        <td><h3>Orange</h3> <br> <p>Orange in disguise.</p> </td>
-                        <td><p id="price">$2.00</p></td>
-                    </tr>
-                </table>
+            <?php
+                // Database configuration
+                include 'hidden.php';
+
+                // try to connect to the database
+                try {
+                    $dsn = "mysql:host=$host;dbname=$dbname";
+                    $pdo = new PDO($dsn, $username, $password);
+                }
+                catch(PDOexception $e) {
+                    echo "<p>Connection to database failed: ${$e->getMessage()}</p>\n";
+                }
+
+                // query the database
+                try {
+                    $query = "SELECT * FROM Inventory;";
+                    $rs = $pdo->query($query);
+                    $rows = $rs->fetchAll(PDO::FETCH_BOTH);
+                }
+                catch(PDOexception $e) {
+                    echo "<p>Query failed: ${$e->getMessage()}</p>\n";
+                }
+
+                echo "<table>\n";
+                
+                // print the products table
+                foreach($rows as $row) {
+                    echo "<tr>\n";
+                    echo "<td><img src=\"$row[4]\" alt=\" $row[1] \"></td>\n";
+                    echo "<td><h3> $row[1] <h3> <br> <p></p></td>\n";
+                    echo "<td><p id=\"price\"> $ $row[2] </td>\n";
+                    echo "</tr>\n";
+                }
+                echo "</table>"?>
         </div>
     </div>
 
