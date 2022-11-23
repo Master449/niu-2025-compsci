@@ -21,14 +21,14 @@ CREATE TABLE Inventory (
     inv_stock INT NOT NULL,
     inv_image CHAR(100) NOT NULL,
 
-    PRIMARY KEY(inv_id) 
+    PRIMARY KEY(inv_id)
 
 );
 
 CREATE TABLE Cart (
 
     cart_id INT NOT NULL UNIQUE,
-    id_inv INT NOT NULL UNIQUE,
+    id_inv INT NOT NULL,
     quantity INT NOT NULL,
     
     PRIMARY KEY(cart_id),
@@ -102,7 +102,7 @@ CREATE TABLE Shipping (
 
 CREATE TABLE Billing (
 
-    biling_id INT NOT NULL UNIQUE,
+    billing_id INT NOT NULL UNIQUE,
     country CHAR(50) NOT NULL,
     state_province CHAR(50) NOT NULL,
     city CHAR(50) NOT NULL,
