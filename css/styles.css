@@ -9,6 +9,7 @@ html {
 body {
   margin: 0;
   padding: 0;
+  height: 100vh;
 }
 
 h1 {
@@ -70,7 +71,6 @@ h4 {
 }
 
 #content {
-  height: 100%;
   background-color: rgb(223, 223, 223);
   display: block;
   margin: 0 auto;
