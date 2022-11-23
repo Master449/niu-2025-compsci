@@ -58,7 +58,7 @@ CREATE TABLE Employee (
 
 );
 
-CREATE TABLE Order (
+CREATE TABLE Orders (
 
     order_no INT NOT NULL UNIQUE,
     track_no INT NOT NULL UNIQUE,
@@ -80,7 +80,7 @@ CREATE TABLE OrderInfo (
     quantity INT NOT NULL,
 
     PRIMARY KEY(no_order, id_inv),
-    FOREIGN KEY(no_order) REFERENCES Order(order_no),
+    FOREIGN KEY(no_order) REFERENCES Orders(order_no),
     FOREIGN KEY(id_inv) REFERENCES Inventory(inv_id)
  
 );
