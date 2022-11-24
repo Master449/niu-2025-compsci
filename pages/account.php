@@ -16,14 +16,82 @@
         <div id="content">
             <div id="title"><h1>Your Account</h1></div>
             <div id="account">
-                <form action="" method="">
-                    <label for="user">Username:</label>
-                    <input type="text" id="user" name="user"><br><br>
+                <?php
+                // if the user is logged in, display their account information
+                include "../hidden.php";
+                session_start();
 
-                    <label for="pass">Password:</label>
-                    <input type="password" id="password" name="password"> <br>
-                    <input type="submit" value="Login" class="button">
-                </form>
+                if (isset($_SESSION['user_id'])) {
+                    // logout button
+                    echo "<form action=\"account.php\" method=\"post\">";
+                    echo "<input type=\"submit\" name=\"Logout\" value=\"Logout\" class=\"button\">";
+                    echo "</form>";
+                } else {
+                    echo "<form action=\"account.php\" method=\"post\">";
+                    echo "<label for=\"user\">Username:</label>";
+                    echo "<input type=\"text\" id=\"user\" name=\"user\"><br><br>";
+
+                    echo "<label for=\"pass\">Password:</label>";
+                    echo "<input type=\"password\" id=\"password\" name=\"password\"> <br><br>";
+
+                    echo "<label for=\"vehicle1\">Employee Login?</label>";
+                    echo "<input type=\"checkbox\" id=\"employee\" name=\"employee\" value=\"emp\"><br>";
+                    echo "<input type=\"submit\" value=\"Login\" class=\"button\">";
+                    echo "</form>";
+                }
+
+                try {
+                    $pdo = new PDO($dbname, $username, $password);
+                }
+                catch(PDOexception $e) {
+                    echo "<p>Connection to database failed: ${$e->getMessage()}</p>\n";
+                }
+
+                // If the checkbox is checked, then the user is an employee
+                // connect to the employee table
+                if (isset($_POST['employee'])) {
+                    $sql = "SELECT * FROM User WHERE user_id = :user AND password = :pass";
+                    $stmt = $pdo->prepare($sql);
+                    $stmt->execute(array(':user' => $_POST['user'], ':pass' => $_POST['password']));
+                    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                    if ($row === false) {
+                        echo "<p>Incorrect username or password</p>";
+                    }
+                    else {
+                        echo "<p>Logged in as employee</p>";
+                        $_SESSION['loggedIn'] = true;
+                        $_SESSION['employee'] = true;
+                        $_SESSION['user_id'] = $row['user_id'];
+                        header("Location: employee.php");
+                    }
+                } else {
+                    $sql = "SELECT * FROM User WHERE user_id = :user AND password = :pass";
+                    $stmt = $pdo->prepare($sql);
+                    $stmt->bindParam(':user', $_POST['user']);
+                    $stmt->bindParam(':pass', $_POST['password']);
+                    $stmt->execute();
+                    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                    // store the customer id in a session variable
+                    if ($row === false) {
+                        // sucks to suck
+                    }
+                    else {
+                        $_SESSION['loggedIn'] = true;
+                        $_SESSION['customer'] = true;
+                        $_SESSION['user_id'] = $row['user_id'];
+                        // back to the home page
+                        header("Location: ../index.php");
+
+                    }
+                }
+
+                if (isset($_POST['Logout'])) {
+                    session_destroy();
+                    header("Location: ../index.php");
+                }
+                ?>
             </div>
         </div>
 
