@@ -49,6 +49,8 @@
             </form>
 
             <?php
+            // Database Connection
+            include '../hidden.php';
 
             // Update stock
             if (isset($_POST['update'])) {

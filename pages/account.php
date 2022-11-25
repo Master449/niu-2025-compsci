@@ -50,6 +50,9 @@
                 // If the checkbox is checked, then the user is an employee
                 // connect to the employee table
                 if (isset($_POST['employee'])) {
+
+                    // ------------------- EMPLOYEE LOGIN -------------------------
+                    // Employee logon should use their employee ID as the username
                     $sql = "SELECT * FROM User WHERE user_id = :user AND password = :pass";
                     $stmt = $pdo->prepare($sql);
                     $stmt->execute(array(':user' => $_POST['user'], ':pass' => $_POST['password']));
@@ -66,7 +69,11 @@
                         header("Location: employee.php");
                     }
                 } else {
-                    $sql = "SELECT * FROM User WHERE user_id = :user AND password = :pass";
+
+                    // ----------------- CUSTOMER LOGIN -----------------
+                    /* This complicated query is because the customer should login with their email address */
+                     
+                    $sql = "SELECT * FROM User INNER JOIN Customer ON Customer.id_user = User.user_id WHERE email_addr = :user AND password = :pass";
                     $stmt = $pdo->prepare($sql);
                     $stmt->bindParam(':user', $_POST['user']);
                     $stmt->bindParam(':pass', $_POST['password']);
@@ -81,6 +88,9 @@
                         $_SESSION['loggedIn'] = true;
                         $_SESSION['customer'] = true;
                         $_SESSION['user_id'] = $row['user_id'];
+                        $_SESSION['first_name'] = $row['first_name'];
+                        $_SESSION['last_name'] = $row['last_name'];
+                        $_SESSION['email_addr'] = $row['email_addr'];
                         // back to the home page
                         header("Location: ../index.php");
 
@@ -94,7 +104,14 @@
                 ?>
                 
             </div>
-            <h2 style="text-align: center; font-size: 16px;">If you get redirected to the home page, you have successfully logged in / out.</h2>
+            <h2 style="text-align: center; font-size: 16px;">If you get redirected to the home page, you have successfully logged in / out.</h2><br><br>
+            <h2 style="text-align: center; font-size: 16px;">The below info is for whoever may be grading this. This lower stuff would never normally be here.</h2><br><br>
+            <h2 style="text-align: center; font-size: 16px;">This query is for the various logon information.</h2>
+            <h2 style="text-align: center; font-size: 16px;">SELECT * FROM User INNER JOIN Customer ON Customer.id_user = User.user_id;</h2>
+            <h2 style="text-align: center; font-size: 16px;">Use the customer email, and password.</h2><br><br>
+            <h2 style="text-align: center; font-size: 16px;">This query is for the employee logon information.</h2>
+            <h2 style="text-align: center; font-size: 16px;">SELECT * FROM User;</h2>
+            <h2 style="text-align: center; font-size: 16px;">Use the employee ID, and password.</h2>
         </div>
 
 

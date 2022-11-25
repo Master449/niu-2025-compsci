@@ -15,6 +15,18 @@
         </div>
         <div id="content">
             <div id="title"><h1>Your Cart</h1></div>
+            <?php
+            include '../hidden.php';
+
+            // Start Session
+            session_start();
+
+            // If the user is not logged in, redirect them to the login page
+            if (!isset($_SESSION['loggedIn'])) {
+                header("Location: account.php");
+            }
+
+            ?>
     </div>
 
 

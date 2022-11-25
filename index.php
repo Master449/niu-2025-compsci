@@ -26,6 +26,9 @@
                 // Database configuration
                 include 'hidden.php';
 
+                // Session
+                session_start();
+
                 // try to connect to the database
                 try {
                     $pdo = new PDO($dbname, $username, $password);
@@ -36,7 +39,7 @@
 
                 // query the database
                 try {
-                    $query = "SELECT * FROM Inventory;";
+                    $query = "SELECT * FROM Inventory WHERE inv_stock > 0 AND inv_id > 0";
                     $rs = $pdo->query($query);
                     $rows = $rs->fetchAll(PDO::FETCH_BOTH);
                 }
