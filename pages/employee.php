@@ -15,6 +15,68 @@
         </div>
         <div id="content">
             <div id="title"><h1>Employee Dashboard</h1></div>
+            <?php
+            include '../hidden.php';
+
+            try {
+                $pdo = new PDO($dbname, $username, $password);
+            }
+            catch(PDOexception $e) {
+                echo "<p>Connection to database failed: ${$e->getMessage()}</p>\n";
+            }
+
+            echo "<h2>Products</h2>\n";
+
+            $sql = "SELECT inv_id, inv_name, inv_stock, inv_price FROM Inventory";
+            $result = $pdo->query($sql);
+
+            echo "<table>\n";
+            echo "<tr><th>Product ID</th><th>Product Name</th><th>Price</th><th>Stock</tr>\n";
+            foreach ($result as $row) {
+                echo "<tr><td>${row['inv_id']}</td><td>${row['inv_name']}</td><td>${row['inv_price']}</td><td>${row['inv_stock']}</td></tr>\n";
+            }
+            echo "</table>\n";
+
+            ?>
+
+            <h2>Update Inventory</h2>
+            <form action="employee.php" method="post">
+                <label for="id">Product ID:</label>
+                <input type="text" name="id" id="id" required><br>
+                <label for="stock">Stock:</label>
+                <input type="text" name="stock" id="stock" required><br>
+                <input type="submit" value="Update">
+            </form>
+
+            <?php
+
+            // Update stock
+            if (isset($_POST['update'])) {
+                $id = $_POST['id'];
+                $stock = $_POST['stock'];
+
+                $sql = "UPDATE Inventory SET inv_stock = :stock WHERE inv_id = :id";
+                $stmt = $pdo->prepare($sql);
+                $stmt->execute(['stock' => $stock, 'id' => $id]);
+            }
+
+            
+
+            echo "<h2>Orders</h2>\n";
+
+            $sql = "SELECT * FROM Orders";
+            $result = $pdo->query($sql);
+
+            echo "<table>\n";
+            echo "<tr><th>Order ID</th><th>Tracking No</th><th>Process State</th><th>Order Date</th><th>User Email</th></tr>\n";
+
+            foreach ($result as $row) {
+                echo "<tr><td>${row['order_no']}</td><td>${row['tracking_no']}</td><td>${row['process_state']}</td><td>${row['order_date']}</td><td>${row['user_email']}</td></tr>\n";
+            }
+
+
+
+            ?>
     </div>
 
 

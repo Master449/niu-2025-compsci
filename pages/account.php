@@ -34,7 +34,7 @@
                     echo "<label for=\"pass\">Password:</label>";
                     echo "<input type=\"password\" id=\"password\" name=\"password\"> <br><br>";
 
-                    echo "<label for=\"vehicle1\">Employee Login?</label>";
+                    echo "<label for=\"employee\">Employee Login?</label>";
                     echo "<input type=\"checkbox\" id=\"employee\" name=\"employee\" value=\"emp\"><br>";
                     echo "<input type=\"submit\" value=\"Login\" class=\"button\">";
                     echo "</form>";
