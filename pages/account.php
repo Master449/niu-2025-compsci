@@ -105,13 +105,16 @@
                 
             </div>
             <h2 style="text-align: center; font-size: 16px;">If you get redirected to the home page, you have successfully logged in / out.</h2><br><br>
-            <h2 style="text-align: center; font-size: 16px;">The below info is for whoever may be grading this. This lower stuff would never normally be here.</h2><br><br>
-            <h2 style="text-align: center; font-size: 16px;">This query is for the various logon information.</h2>
-            <h2 style="text-align: center; font-size: 16px;">SELECT * FROM User INNER JOIN Customer ON Customer.id_user = User.user_id;</h2>
-            <h2 style="text-align: center; font-size: 16px;">Use the customer email, and password.</h2><br><br>
-            <h2 style="text-align: center; font-size: 16px;">This query is for the employee logon information.</h2>
-            <h2 style="text-align: center; font-size: 16px;">SELECT * FROM User;</h2>
-            <h2 style="text-align: center; font-size: 16px;">Use the employee ID, and password.</h2>
+            <?php
+            /* 
+               This query is for the Customer logon information.
+               SELECT * FROM User INNER JOIN Customer ON Customer.id_user = User.user_id;
+               Use the customer email, and password.
+
+               This query is for the employee logon information.
+               SELECT * FROM User;
+               Use the employee ID, and password. */
+            ?>
         </div>
 
 
