@@ -92,7 +92,9 @@
                     header("Location: ../index.php");
                 }
                 ?>
+                
             </div>
+            <h2 style="text-align: center; font-size: 16px;">If you get redirected to the home page, you have successfully logged in / out.</h2>
         </div>
 
 
