@@ -1,3 +1,17 @@
+<!--
+    
+    CSCI 466 Group Project
+
+    Authors:
+       Sami Rezae         Z1920718   
+       Bailey Appelhans   Z1759158
+       Gerald Ellsworth   Z1885378
+       David Flowers II   Z1942130
+
+    Date: 11/30/2022
+
+-->
+
 <html>
     <head>
         <title>Assignment 9</title>
@@ -47,16 +61,31 @@
 
             // Otherwise, display the cart
             else {
-                echo "<table style=\"margin: 0px auto;\">";
-                echo "<tr><th>Product</th><th>Quantity</th><th>Price</th></tr>";
+                echo "<table style=\"margin: 0px auto; border-spacing: 50px; text-align: center;\">";
+                echo "<tr><th>Product</th><th>Quantity</th><th>Price</th><th>Quantity</th></tr>";
                 foreach ($cart as $item) {
                     echo "<tr>";
-                    echo "<td>${item[5]}</td>";
-                    echo "<td>${item[2]}</td>";
-                    echo "<td>$${item[6]}</td>";
+                    echo "<td><img src=\"${item['inv_image']}\" style=\"height: 100px;\"></img></td>";
+                    echo "<td>${item['inv_name']}</td>";
+                    echo "<td>$${item['inv_price']}</td>";
+                    echo "<td>${item['quantity']}</td>";
+                    // remove from cart
+                    echo "<td><form action=\"cart.php\" method=\"post\">";
+                    echo "<input type=\"hidden\" name=\"id\" value=\"${item['inv_id']}\">";
+                    echo "<input type=\"submit\" value=\"Remove\">";
+                    echo "</form></td>";
                     echo "</tr>";
                 }
                 echo "</table>";
+            }
+
+            // If the user has submitted the form, remove the item from the cart
+            if (isset($_POST['id'])) {
+                // Update the item to inv_id = 0
+                $query = "UPDATE Cart SET id_inv = 0 WHERE id_user = :user_id AND id_inv = :inv_id;";
+                $statement = $pdo->prepare($query);
+                $statement->execute(array(':user_id' => $_SESSION['user_id'], ':inv_id' => $_POST['id']));
+                header("Location: cart.php");
             }
             ?>
     </div>

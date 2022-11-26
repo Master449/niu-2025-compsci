@@ -1,3 +1,17 @@
+<!--
+    
+    CSCI 466 Group Project
+
+    Authors:
+       Sami Rezae         Z1920718   
+       Bailey Appelhans   Z1759158
+       Gerald Ellsworth   Z1885378
+       David Flowers II   Z1942130
+
+    Date: 11/30/2022
+
+-->
+
 <html>
     <head>
         <title>Assignment 9</title>
@@ -23,7 +37,6 @@
 
                 if (isset($_SESSION['user_id'])) {
                     // logout button
-                    echo "<p style=\"text-align: center;\">Welcome, " . $_SESSION['first_name'] . " " . $_SESSION['last_name'] . "!</p><br><br>";
                     echo "<form action=\"account.php\" method=\"post\">";
                     echo "<input type=\"submit\" name=\"Logout\" value=\"Logout\" class=\"button\">";
                     echo "</form>";

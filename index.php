@@ -1,3 +1,17 @@
+<!--
+    
+    CSCI 466 Group Project
+
+    Authors:
+       Sami Rezae         Z1920718   
+       Bailey Appelhans   Z1759158
+       Gerald Ellsworth   Z1885378
+       David Flowers II   Z1942130
+
+    Date: 11/30/2022
+
+-->
+
 <html>
     <head>
         <title>Assignment 9</title>
@@ -20,14 +34,18 @@
             -->
         <div id="content">
             <div id="title"><h1>Welcome to Placeholder Mart</h1>
-            <h4>We got groceries or something.</h4></div>
+            <?php
+            session_start();
+            if (isset($_SESSION['user_id'])) {
+                echo "<h4>Welcome back " . $_SESSION['first_name'] . " " . $_SESSION['last_name'] . ".</h4>";;
+            } else {
+                echo "<h4>We got groceries or something.</h4></div>";
+            }
+            ?>
             <div id="products">
             <?php
                 // Database configuration
                 include 'hidden.php';
-
-                // Session
-                session_start();
 
                 // try to connect to the database
                 try {
