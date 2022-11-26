@@ -49,15 +49,19 @@
             </form>
 
             <?php
+            // Database Connection
+            include '../hidden.php';
 
             // Update stock
+            // This doesn't work
+            // I don't know why
             if (isset($_POST['update'])) {
                 $id = $_POST['id'];
                 $stock = $_POST['stock'];
 
                 $sql = "UPDATE Inventory SET inv_stock = :stock WHERE inv_id = :id";
                 $stmt = $pdo->prepare($sql);
-                $stmt->execute(['stock' => $stock, 'id' => $id]);
+                $stmt->execute([':stock' => $stock, ':id' => $id]);
             }
 
             

@@ -16,6 +16,7 @@
         <div id="content">
             <div id="title"><h1>Placeholder Mart</h1></div>
             <?php
+                session_start();
                 include '../hidden.php';
                 $productID = $_GET['productID']; // Gets the productID from the URL
 
@@ -51,21 +52,39 @@
                                     <!-- There currently is no description in the database
                                          but when there is, it would go here. --> <br>
                                     <p> <?php echo "$" . $rows[2]; ?> </p>
-                                    <form action="" method="">
+                                    <form action="product.php" method="post">
                                         <select name="qty" id="qty">
                                             <option value="1">1</option>
-                                            <option value="1">2</option>
-                                            <option value="1">3</option>
-                                            <option value="1">4</option>
-                                            <option value="1">5</option>
-                                            <option value="1">6</option>
-                                            <option value="1">7</option>
-                                            <option value="1">8</option>
-                                            <option value="1">9</option>
-                                            <option value="1">10</option>
+                                            <option value="2">2</option>
+                                            <option value="3">3</option>
+                                            <option value="4">4</option>
+                                            <option value="5">5</option>
+                                            <option value="6">6</option>
+                                            <option value="7">7</option>
+                                            <option value="8">8</option>
+                                            <option value="9">9</option>
+                                            <option value="10">10</option>
                                         </select>
                                         <button type="submit" name="addtocart">Add To Cart</button>
                                     </form>
+                                    <?php
+                                    // This doesn't work
+                                    // I don't know why
+                                    $productID = $_GET['productID'];
+                                    $cartpdo = new PDO($dbname, $username, $password);
+                                    if (isset($_POST['addtocart'])) {
+                                        $quantity = $_POST['qty'];
+                                        $id = $_SESSION['id'];
+                                        $cartQuery = "INSERT INTO Cart(id_inv, quantity, id_user) VALUES (:productid, :quantity, :id_user);";
+                                        $cartstatement = $cartpdo->prepare($cartQuery);
+                                        $cartstatement->bindValue(':productid', $productID);
+                                        $cartstatement->bindValue(':quantity', $quantity);
+                                        $cartstatement->bindValue(':id_user', $id);
+                                        $cartstatement->execute();
+                                        // Send the user to the cart page
+                                        header("Location: cart.php");
+                                    }
+                                    ?>
                                 </p>
                             </td>
                     </table>
