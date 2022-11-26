@@ -24,23 +24,25 @@ INSERT INTO Inventory VALUES (20, 'Canned Soup',     0.99, 30,  'https://i.imgur
 
 -- Customers
 INSERT INTO User VALUES (1, "John", "Smith", "password1");
-INSERT INTO Cart VALUES (1, 0, 0);
+INSERT INTO Cart(id_inv, quantity, id_user) VALUES (2, 10, 1);
 INSERT INTO Customer VALUES (1, "john@email.com", 1);
 
 INSERT INTO User VALUES (2, "Mary", "Lancaster", "password2");
-INSERT INTO Cart VALUES (2, 0, 0);
+INSERT INTO Cart(id_inv, quantity, id_user) VALUES (2, 10, 2);
+INSERT INTO Cart(id_inv, quantity, id_user) VALUES (3, 5, 2);
+INSERT INTO Cart(id_inv, quantity, id_user) VALUES (10, 2, 2);
 INSERT INTO Customer VALUES (2, "mary@email.com", 2);
 
 INSERT INTO User VALUES (3, "Maria", "Orbit", "password3");
-INSERT INTO Cart VALUES (3, 0, 0);
+--INSERT INTO Cart VALUES (3, 0, 0);
 INSERT INTO Customer VALUES (3, "maria@email.com", 3);
 
 INSERT INTO User VALUES (4, "Michael", "Frank", "password4");
-INSERT INTO Cart VALUES (4, 0, 0);
+--INSERT INTO Cart VALUES (4, 0, 0);
 INSERT INTO Customer VALUES (4, "michael@email.com", 4);
 
 INSERT INTO User VALUES (5, "Lehuta", "Jon", "password5");
-INSERT INTO Cart VALUES (5, 0, 0);
+--INSERT INTO Cart VALUES (5, 0, 0);
 INSERT INTO Customer VALUES (5, "lehuta@email.com", 5);
 
 

@@ -23,6 +23,7 @@
 
                 if (isset($_SESSION['user_id'])) {
                     // logout button
+                    echo "<p style=\"text-align: center;\">Welcome, " . $_SESSION['first_name'] . " " . $_SESSION['last_name'] . "!</p><br><br>";
                     echo "<form action=\"account.php\" method=\"post\">";
                     echo "<input type=\"submit\" name=\"Logout\" value=\"Logout\" class=\"button\">";
                     echo "</form>";
@@ -88,8 +89,8 @@
                         $_SESSION['loggedIn'] = true;
                         $_SESSION['customer'] = true;
                         $_SESSION['user_id'] = $row['user_id'];
-                        $_SESSION['first_name'] = $row['first_name'];
-                        $_SESSION['last_name'] = $row['last_name'];
+                        $_SESSION['first_name'] = $row['f_name'];
+                        $_SESSION['last_name'] = $row['l_name'];
                         $_SESSION['email_addr'] = $row['email_addr'];
                         // back to the home page
                         header("Location: ../index.php");

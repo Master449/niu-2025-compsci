@@ -27,12 +27,14 @@ CREATE TABLE Inventory (
 
 CREATE TABLE Cart (
 
-    cart_id INT NOT NULL UNIQUE,
+    cart_id INT AUTO_INCREMENT,
     id_inv INT NOT NULL,
     quantity INT NOT NULL,
+    id_user INT NOT NULL,
     
     PRIMARY KEY(cart_id),
-    FOREIGN KEY(id_inv) REFERENCES Inventory(inv_id)
+    FOREIGN KEY(id_inv) REFERENCES Inventory(inv_id),
+    FOREIGN KEY(id_user) REFERENCES User(user_id)
 
 );
 

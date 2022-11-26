@@ -25,7 +25,39 @@
             if (!isset($_SESSION['loggedIn'])) {
                 header("Location: account.php");
             }
+            
+            // Connect to the database
+            try {
+                $pdo = new PDO($dbname, $username, $password);
+            }
+            catch(PDOexception $e) {
+                echo "<p>Connection to database failed: ${$e->getMessage()}</p>\n";
+            }
 
+            // Get the user's cart
+            $query = "SELECT * FROM Cart INNER JOIN Inventory ON Cart.id_inv = Inventory.inv_id WHERE id_user = :user_id AND inv_id > 0;";
+            $statement = $pdo->prepare($query);
+            $statement->execute(array(':user_id' => $_SESSION['user_id']));
+            $cart = $statement->fetchAll(PDO::FETCH_BOTH);
+
+            // If the cart is empty, display a message
+            if (empty($cart)) {
+                echo "<p style=\"text-align: center;\">Your cart is empty.</p>";
+            }
+
+            // Otherwise, display the cart
+            else {
+                echo "<table style=\"margin: 0px auto;\">";
+                echo "<tr><th>Product</th><th>Quantity</th><th>Price</th></tr>";
+                foreach ($cart as $item) {
+                    echo "<tr>";
+                    echo "<td>${item[5]}</td>";
+                    echo "<td>${item[2]}</td>";
+                    echo "<td>$${item[6]}</td>";
+                    echo "</tr>";
+                }
+                echo "</table>";
+            }
             ?>
     </div>
 
