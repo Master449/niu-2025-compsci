@@ -80,11 +80,16 @@
             }
 
             // If the user has submitted the form, remove the item from the cart
+            // I could not get this to work normally, so I had to use a workaround
+            // setting the current inventory id to 0
+            // as the cart is displayed, it will only display inv_id > 0
             if (isset($_POST['id'])) {
                 // Update the item to inv_id = 0
                 $query = "UPDATE Cart SET id_inv = 0 WHERE id_user = :user_id AND id_inv = :inv_id;";
                 $statement = $pdo->prepare($query);
                 $statement->execute(array(':user_id' => $_SESSION['user_id'], ':inv_id' => $_POST['id']));
+
+                // Refresh the page
                 header("Location: cart.php");
             }
             ?>
