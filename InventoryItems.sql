@@ -1,3 +1,17 @@
+/*
+    
+    CSCI 466 Group Project
+
+    Authors:
+       Sami Rezae         Z1920718   
+       Bailey Appelhans   Z1759158
+       Gerald Ellsworth   Z1885378
+       David Flowers II   Z1942130
+
+    Date: 11/30/2022
+
+*/
+
 -- Inventory Products
 
 INSERT INTO Inventory VALUES (0,  '',          0.00, 0, '');
