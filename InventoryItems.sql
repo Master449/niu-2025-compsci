@@ -72,3 +72,10 @@ INSERT INTO Employee VALUES (30, 30);
 
 INSERT INTO User VALUES (40, "David", "Flowers", "password");
 INSERT INTO Employee VALUES (40, 40);
+
+
+-- Orders
+INSERT INTO Orders VALUES (1, 42069, "Processing", '2022-11-27 10:34:09', "john@email.com", 10);
+INSERT INTO Orders VALUES (2, 11111, "Processing", '2022-11-27 10:34:10', "lehuta@email.com", 20);
+INSERT INTO Orders VALUES (3, 22222, "Processing", '2022-11-27 10:34:12', "mary@email.com", 30);
+INSERT INTO Orders VALUES (4, 45654, "Shipped", '2022-11-29 10:34:12', "michael@email.com", 40);

@@ -36,8 +36,10 @@
             <div id="title"><h1>Welcome to Placeholder Mart</h1>
             <?php
             session_start();
-            if (isset($_SESSION['user_id'])) {
+            if (isset($_SESSION['user_id']) && !(isset($_SESSION['employee']))) {
                 echo "<h4>Welcome back " . $_SESSION['first_name'] . " " . $_SESSION['last_name'] . ".</h4>";;
+            } else if (isset($_SESSION['employee'])) {
+                echo "<h4>Click <a href=\"pages/employee.php\">Here</a> for the Employee Dashboard</h4>";
             } else {
                 echo "<h4>We got groceries or something.</h4></div>";
             }

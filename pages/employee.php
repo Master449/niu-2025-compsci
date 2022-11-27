@@ -39,61 +39,85 @@
                 echo "<p>Connection to database failed: ${$e->getMessage()}</p>\n";
             }
 
-            echo "<h2>Products</h2>\n";
+            // Outer table
+            echo "<table style=\"margin: 0px auto; border-spacing: 50px; text-align: center;\">";
+            echo "<tr VALIGN=TOP>";
+            echo "<td>";
+            echo "<h2>Inventory</h2>\n";
 
             $sql = "SELECT inv_id, inv_name, inv_stock, inv_price FROM Inventory";
             $result = $pdo->query($sql);
 
-            echo "<table>\n";
+            echo "<table style=\"border: 1px solid black; border-spacing: 10px;\">";
             echo "<tr><th>Product ID</th><th>Product Name</th><th>Price</th><th>Stock</tr>\n";
             foreach ($result as $row) {
-                echo "<tr><td>${row['inv_id']}</td><td>${row['inv_name']}</td><td>${row['inv_price']}</td><td>${row['inv_stock']}</td></tr>\n";
+                echo "<tr><td>${row['inv_id']}</td><td>${row['inv_name']}</td><td>${row['inv_price']}</td><td style=\"text-align: right;\">${row['inv_stock']}</td></tr>\n";
             }
             echo "</table>\n";
 
-            ?>
-
-            <h2>Update Inventory</h2>
-            <form action="employee.php" method="post">
-                <label for="id">Product ID:</label>
-                <input type="text" name="id" id="id" required><br>
-                <label for="stock">Stock:</label>
-                <input type="text" name="stock" id="stock" required><br>
-                <input type="submit" value="Update">
-            </form>
-
-            <?php
-            // Database Connection
-            include '../hidden.php';
-
-            // Update stock
-            // This doesn't work
-            // I don't know why
-            if (isset($_POST['update'])) {
-                $id = $_POST['id'];
-                $stock = $_POST['stock'];
-
-                $sql = "UPDATE Inventory SET inv_stock = :stock WHERE inv_id = :id";
-                $stmt = $pdo->prepare($sql);
-                $stmt->execute([':stock' => $stock, ':id' => $id]);
-            }
+            echo "</td>"; // End outer table row
 
             
-
+            echo "<td>"; // Start outer table row
             echo "<h2>Orders</h2>\n";
 
             $sql = "SELECT * FROM Orders";
             $result = $pdo->query($sql);
 
-            echo "<table>\n";
-            echo "<tr><th>Order ID</th><th>Tracking No</th><th>Process State</th><th>Order Date</th><th>User Email</th></tr>\n";
+
+            echo "<table style=\"border: 1px solid black;\">";
+            echo "<tr><th>Order ID</th><th>Tracking Number</th><th>Process State</th><th>Order Date</th><th>User Email</th></tr>\n";
 
             foreach ($result as $row) {
-                echo "<tr><td>${row['order_no']}</td><td>${row['tracking_no']}</td><td>${row['process_state']}</td><td>${row['order_date']}</td><td>${row['user_email']}</td></tr>\n";
+                echo "<tr><td>${row['order_no']}</td><td>${row['track_no']}</td><td>${row['process_state']}</td><td>${row['order_date']}</td><td>${row['user_email']}</td></tr>\n";
             }
+            echo "</table>\n";
+            ?>
+            <h2>Update Order Status</h2>
+            <form action="employee.php" method="post">
+                <input type="text" name="order" placeholder="Order Number">
+                <input type="text" name="process" placeholder="Process State">
+                <input type="submit" value="Update">
+            </form>
+            <?php
 
+            if (isset($_POST['order']) && isset($_POST['process'])) {
+                $order = $_POST['order'];
+                $process = $_POST['process'];
 
+                $sql = "UPDATE Orders SET process_state = :process WHERE order_no = :order;";
+                $stmt = $pdo->prepare($sql);
+                $stmt->execute(['process' => $process, 'order' => $order]);
 
+                echo "<p>Order ${order} updated to ${process}.</p>\n";
+
+            }
+            ?>
+
+            <h2>Update Inventory</h2>
+            <form action="employee.php" method="post">
+                <input type="text" name="id" placeholder="Product ID">
+                <input type="text" name="stock" placeholder="Stock">
+                <input type="submit" value="Update">
+            </form>
+
+            <?php
+
+            if (isset($_POST['id']) && isset($_POST['stock'])) {
+                $id = $_POST['id'];
+                $stock = $_POST['stock'];
+
+                $sql = "UPDATE Inventory SET inv_stock = :stock WHERE inv_id = :id;";
+                $stmt = $pdo->prepare($sql);
+                $stmt->execute(['stock' => $stock, 'id' => $id]);
+
+                echo "<p>Product ${id} updated to ${stock}.</p>\n";
+
+            }
+            
+            echo "</td>"; // End outer table row
+            echo "</td>"; // End outer table row
+            echo "</table>\n"; // End outer table
             ?>
     </div>
 
