@@ -80,6 +80,8 @@
                         $_SESSION['loggedIn'] = true;
                         $_SESSION['employee'] = true;
                         $_SESSION['user_id'] = $row['user_id'];
+                        $_SESSION['first_name'] = $row['f_name'];
+                        $_SESSION['last_name'] = $row['l_name'];
                         header("Location: employee.php");
                     }
                 } else {
@@ -126,7 +128,7 @@
                Use the customer email, and password.
 
                This query is for the employee logon information.
-               SELECT * FROM User;
+               SELECT * FROM User INNER JOIN Employee ON User.user_id = Employee.id_user;;
                Use the employee ID, and password. */
             ?>
         </div>

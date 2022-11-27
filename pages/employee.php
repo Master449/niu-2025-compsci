@@ -31,7 +31,14 @@
             <div id="title"><h1>Employee Dashboard</h1></div>
             <?php
             include '../hidden.php';
+            session_start();
 
+            // Check if the user is an employee, if not redirect to the home page
+            if ($_SESSION['employee'] != true) {
+                header("Location: ../index.php");
+            }
+
+            // Connect to the database
             try {
                 $pdo = new PDO($dbname, $username, $password);
             }
@@ -39,61 +46,103 @@
                 echo "<p>Connection to database failed: ${$e->getMessage()}</p>\n";
             }
 
-            echo "<h2>Products</h2>\n";
+            // Show who is logged in
+            echo "<center><h2>Employee: " . $_SESSION['first_name'] . " " . $_SESSION['last_name'] . "</h2></center>\n";
 
+            // Outer table
+            echo "<table style=\"margin: 0px auto; border-spacing: 50px; text-align: center;\">";
+            echo "<tr VALIGN=TOP>";
+            echo "<td>";
+            echo "<h2>Inventory</h2>\n";
+
+            // Query the database for all products
             $sql = "SELECT inv_id, inv_name, inv_stock, inv_price FROM Inventory";
             $result = $pdo->query($sql);
 
-            echo "<table>\n";
+            // Display the products in a table
+            echo "<table style=\"border: 1px solid black; border-spacing: 10px;\">";
             echo "<tr><th>Product ID</th><th>Product Name</th><th>Price</th><th>Stock</tr>\n";
             foreach ($result as $row) {
-                echo "<tr><td>${row['inv_id']}</td><td>${row['inv_name']}</td><td>${row['inv_price']}</td><td>${row['inv_stock']}</td></tr>\n";
+                echo "<tr><td style=\"font-weight: bold; text-align: center;\">${row['inv_id']}</td><td>${row['inv_name']}</td><td>${row['inv_price']}</td><td style=\"text-align: right;\">${row['inv_stock']}</td></tr>\n";
             }
             echo "</table>\n";
 
-            ?>
+            echo "</td>"; // End outer table row
 
+            
+            echo "<td>"; // Start outer table row
+            echo "<h2>Orders</h2>\n";
+
+            // Query the database for all orders
+            $sql = "SELECT * FROM Orders";
+            $result = $pdo->query($sql);
+
+            // Orders table
+            echo "<table style=\"border: 1px solid black; border-spacing: 10px;\">";
+            echo "<tr><th>Order ID</th><th>Tracking Number</th><th>Process State</th><th>Order Date</th><th>User Email</th></tr>\n";
+
+            foreach ($result as $row) {
+                echo "<tr><td style=\"font-weight: bold; text-align: center;\">${row['order_no']}</td><td>${row['track_no']}</td><td>${row['process_state']}</td><td>${row['order_date']}</td><td>${row['user_email']}</td></tr>\n";
+            }
+            echo "</table>\n";
+
+            // Form to change the process state of an Order
+            ?>
+            <h2>Update Order Status</h2>
+            <form action="employee.php" method="post">
+                <input type="text" name="order" placeholder="Order ID">
+                <select name="process">
+                    <option value="Processing">Processing</option>
+                    <option value="Shipped">Shipped</option>
+                    <option value="Delivered">Delivered</option>
+                    <option value="Cancelled">Cancelled</option>
+                </select>
+                <input type="submit" value="Update">
+            </form>
+            <?php
+
+            // Process State update form
+            if (isset($_POST['order']) && isset($_POST['process'])) {
+                $order = $_POST['order'];
+                $process = $_POST['process'];
+
+                // Update the process state of the order
+                $sql = "UPDATE Orders SET process_state = :process WHERE order_no = :order;";
+                $stmt = $pdo->prepare($sql);
+                $stmt->execute(['process' => $process, 'order' => $order]);
+
+                echo "<p>Order ${order} updated to ${process}. Refresh to see the changes.</p>\n";
+
+            }
+
+            // Form to update a product
+            ?>
             <h2>Update Inventory</h2>
             <form action="employee.php" method="post">
-                <label for="id">Product ID:</label>
-                <input type="text" name="id" id="id" required><br>
-                <label for="stock">Stock:</label>
-                <input type="text" name="stock" id="stock" required><br>
+                <input type="text" name="id" placeholder="Product ID">
+                <input type="text" name="stock" placeholder="Quantity">
+                <input type="number" name="price" step="0.01" placeholder="Price">
                 <input type="submit" value="Update">
             </form>
 
             <?php
-            // Database Connection
-            include '../hidden.php';
-
-            // Update stock
-            // This doesn't work
-            // I don't know why
-            if (isset($_POST['update'])) {
+            // Product Update Form
+            if (isset($_POST['id']) && isset($_POST['stock']) && isset($_POST['price'])) {
                 $id = $_POST['id'];
                 $stock = $_POST['stock'];
+                $price = $_POST['price'];
 
-                $sql = "UPDATE Inventory SET inv_stock = :stock WHERE inv_id = :id";
+                $sql = "UPDATE Inventory SET inv_stock = :stock, inv_price = :price WHERE inv_id = :id;";
                 $stmt = $pdo->prepare($sql);
-                $stmt->execute([':stock' => $stock, ':id' => $id]);
-            }
+                $stmt->execute(['stock' => $stock, 'id' => $id, 'price' => $price]);
 
+                echo "<p>Product ${id} updated to ${stock} at $${price}. Refresh to see the changes.</p>\n";
+
+            }
             
-
-            echo "<h2>Orders</h2>\n";
-
-            $sql = "SELECT * FROM Orders";
-            $result = $pdo->query($sql);
-
-            echo "<table>\n";
-            echo "<tr><th>Order ID</th><th>Tracking No</th><th>Process State</th><th>Order Date</th><th>User Email</th></tr>\n";
-
-            foreach ($result as $row) {
-                echo "<tr><td>${row['order_no']}</td><td>${row['tracking_no']}</td><td>${row['process_state']}</td><td>${row['order_date']}</td><td>${row['user_email']}</td></tr>\n";
-            }
-
-
-
+            echo "</td>"; // End outer table row
+            echo "</td>"; // End outer table row
+            echo "</table>\n"; // End outer table
             ?>
     </div>
 
