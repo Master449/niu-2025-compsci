@@ -1,4 +1,4 @@
-<!--
+<?php /*
     
     CSCI 466 Group Project
 
@@ -14,7 +14,7 @@
     products in a list here. The products are only displayed if they are in stock and the ID is
     not 0. The products are displayed in a table with the product name, price, and quantity.
 
--->
+*/ ?>
 
 <html>
     <head>

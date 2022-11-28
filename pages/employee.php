@@ -1,4 +1,4 @@
-<!--
+<?php /*
     
     CSCI 466 Group Project
 
@@ -13,7 +13,8 @@
     This is the employee Dashboard. It will summarize the database Inventory,
     Orders, and OrderInfo. There are also forms to update the inventory and
     orders. The employee can also add new items to the inventory.
--->
+
+*/?>
 
 <html>
     <head>
@@ -81,7 +82,7 @@
             $result = $pdo->query($sql);
 
             // Orders table
-            echo "<table style=\"border: 1px solid black; border-spacing: 10px; width: 100%;\">";
+            echo "<table style=\"border: 1px solid black; border-spacing: 10px; width: 100%; text-align: center;\">";
             echo "<tr><th>Order ID</th><th>Tracking Number</th><th>Process State</th><th>Order Date</th><th>User Email</th></tr>\n";
 
             foreach ($result as $row) {
@@ -93,7 +94,7 @@
             $result = $pdo->query($sql);
             $result->setFetchMode(PDO::FETCH_ASSOC);
 
-            echo "<table style=\"border: 1px solid black; border-spacing: 10px; width: 100%;\">";
+            echo "<table style=\"border: 1px solid black; border-spacing: 10px; width: 100%; text-align: center;\">";
             echo "<tr><th>Order ID</th><th>Product ID</th><th>Quantity</th><th>Product</th></tr>\n";
 
             foreach ($result as $row) {

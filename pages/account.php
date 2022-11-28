@@ -1,4 +1,4 @@
-<!--
+<?php /*
     
     CSCI 466 Group Project
 
@@ -16,7 +16,18 @@
     After successful logon it will send the customer to the home page.
     Successful employee login will send the employee to the employee dashboard.
 
--->
+    Some accounts to test with:
+       Employee:  David Flowers
+            username: 40  
+            password: password
+
+       Customer:  John Smith
+            username: john@email.com 
+            password: password1
+
+    There are more accounts however, they are located in the database and SQL script.
+
+*/?>
 
 <html>
     <head>

@@ -1,6 +1,5 @@
-<?php session_start(); ?>
-<!--
-    
+<?php session_start();
+/*    
     CSCI 466 Group Project
 
     Authors:
@@ -11,7 +10,7 @@
 
     Date: 11/30/2022
 
--->
+*/?>
 <style>
 
 table {

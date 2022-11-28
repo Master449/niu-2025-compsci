@@ -1,5 +1,5 @@
-<?php session_start(); ?>
-<!--
+<?php session_start();
+/*
     
     CSCI 466 Group Project
 
@@ -15,7 +15,7 @@
     from the URL on the previous page and used to query the database for the product.
     The product information is then displayed on the page.
 
--->
+*/?>
 
 <html>
     <head>

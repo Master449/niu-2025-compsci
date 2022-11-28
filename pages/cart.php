@@ -1,4 +1,4 @@
-<!--
+<?php /*
     
     CSCI 466 Group Project
 
@@ -10,7 +10,7 @@
 
     Date: 11/30/2022
 
--->
+*/?>
 <style>
 button {
   background-color: #D72638;
