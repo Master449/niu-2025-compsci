@@ -1,4 +1,4 @@
-<!--
+<?php /*
     
     CSCI 466 Group Project
 
@@ -10,7 +10,11 @@
 
     Date: 11/30/2022
 
--->
+    This is the main page for our CSCI 466 Group Project. This page will be used to display the
+    products in a list here. The products are only displayed if they are in stock and the ID is
+    not 0. The products are displayed in a table with the product name, price, and quantity.
+
+*/ ?>
 
 <html>
     <head>

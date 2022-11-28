@@ -1,4 +1,4 @@
-<!--
+<?php /*
     
     CSCI 466 Group Project
 
@@ -10,7 +10,34 @@
 
     Date: 11/30/2022
 
--->
+    This is the login / logout page for the Users. If the user is currently logged in,
+    it will display the logout button, otherwise it will display the login form.
+
+    After successful logon it will send the customer to the home page.
+    Successful employee login will send the employee to the employee dashboard.
+
+    Some accounts to test with:
+       Employee:  David Flowers
+            username: 40  
+            password: password
+
+       Customer:  John Smith
+            username: john@email.com 
+            password: password1
+
+    There are more accounts however, they are located in the database and SQL script.
+
+    Session Variables Quick Reference:
+        ['loggedIn']        Boolean     If a User is logged in
+        ['customer']        Boolean     If a User is a customer
+        ['employee']        Boolean     If a User if an Employee
+        ['user_id']         String      Stores their user_id
+        ['first_name']      String      Stores their First Name
+        ['last_name']       String      Stored their Last Name
+        ['email_addr']      String      Stored their Email Address
+
+
+*/?>
 
 <html>
     <head>

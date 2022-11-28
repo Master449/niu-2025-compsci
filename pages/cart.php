@@ -1,4 +1,4 @@
-<!--
+<?php /*
     
     CSCI 466 Group Project
 
@@ -10,8 +10,18 @@
 
     Date: 11/30/2022
 
--->
-
+*/?>
+<style>
+button {
+  background-color: #D72638;
+  color: white;
+  font-size: 24px;
+  border: none;
+  border-radius: 5%;
+  padding: 10px 20px;
+  margin: 5% 0;
+}
+</style>
 <html>
     <head>
         <title>Assignment 9</title>
@@ -72,11 +82,32 @@
                     // remove from cart
                     echo "<td><form action=\"cart.php\" method=\"post\">";
                     echo "<input type=\"hidden\" name=\"id\" value=\"${item['inv_id']}\">";
-                    echo "<input type=\"submit\" value=\"Remove\">";
+                    echo "<button type=\"submit\" value=\"Remove\">Remove</button>";
                     echo "</form></td>";
                     echo "</tr>";
                 }
+                // Total
+                $query = "SELECT SUM(inv_price * quantity) AS total FROM Cart INNER JOIN Inventory ON Cart.id_inv = Inventory.inv_id WHERE id_user = :user_id AND inv_id > 0;";
+                $statement = $pdo->prepare($query);
+                $statement->execute(array(':user_id' => $_SESSION['user_id']));
+                $total = $statement->fetch(PDO::FETCH_BOTH);
+
+                $withTax = $total['total'] * 1.02;
+
+                echo "<tr><td colspan=\"5\"><h2>Subtotal: $${total['total']}<br>Total (2% tax): $" . number_format($withTax, 2) . "</h2></td></td></tr>";
                 echo "</table>";
+            }
+
+            echo "<center>";
+            echo "<form action=\"cart.php\" method=\"post\">";
+            echo "<button id=\"check\" type=\"submit\" name=\"checkout\">Checkout</button>";
+            echo "</form>";
+            echo "</center>";
+
+            // Checkout button logic
+            if (isset($_POST['checkout'])) {
+                // Get the user's cart
+                header("Location: checkout.php");
             }
 
             // If the user has submitted the form, remove the item from the cart
