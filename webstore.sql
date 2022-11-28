@@ -77,8 +77,8 @@ CREATE TABLE Orders (
 
 CREATE TABLE OrderInfo (
 
-    no_order INT NOT NULL UNIQUE,
-    id_inv INT NOT NULL UNIQUE,
+    no_order INT NOT NULL,
+    id_inv INT NOT NULL,
     quantity INT NOT NULL,
 
     PRIMARY KEY(no_order, id_inv),

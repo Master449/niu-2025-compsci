@@ -10,6 +10,9 @@
 
     Date: 11/30/2022
 
+    This is the employee Dashboard. It will summarize the database Inventory,
+    Orders, and OrderInfo. There are also forms to update the inventory and
+    orders. The employee can also add new items to the inventory.
 -->
 
 <html>
@@ -78,12 +81,25 @@
             $result = $pdo->query($sql);
 
             // Orders table
-            echo "<table style=\"border: 1px solid black; border-spacing: 10px;\">";
+            echo "<table style=\"border: 1px solid black; border-spacing: 10px; width: 100%;\">";
             echo "<tr><th>Order ID</th><th>Tracking Number</th><th>Process State</th><th>Order Date</th><th>User Email</th></tr>\n";
 
             foreach ($result as $row) {
                 echo "<tr><td style=\"font-weight: bold; text-align: center;\">${row['order_no']}</td><td>${row['track_no']}</td><td>${row['process_state']}</td><td>${row['order_date']}</td><td>${row['user_email']}</td></tr>\n";
             }
+            
+            // Query of what the orders contains
+            $sql = "SELECT * FROM OrderInfo INNER JOIN Inventory ON OrderInfo.id_inv = Inventory.inv_id";
+            $result = $pdo->query($sql);
+            $result->setFetchMode(PDO::FETCH_ASSOC);
+
+            echo "<table style=\"border: 1px solid black; border-spacing: 10px; width: 100%;\">";
+            echo "<tr><th>Order ID</th><th>Product ID</th><th>Quantity</th><th>Product</th></tr>\n";
+
+            foreach ($result as $row) {
+                echo "<tr><td style=\"font-weight: bold;\">${row['no_order']}</td><td>${row['id_inv']}</td><td>${row['quantity']}</td><td>${row['inv_name']}</tr>\n";
+            }
+
             echo "</table>\n";
 
             // Form to change the process state of an Order
@@ -137,6 +153,35 @@
                 $stmt->execute(['stock' => $stock, 'id' => $id, 'price' => $price]);
 
                 echo "<p>Product ${id} updated to ${stock} at $${price}. Refresh to see the changes.</p>\n";
+
+            }
+
+            // Form to add a new product
+            ?>
+            <h2>Add New Product</h2>
+            <form action="employee.php" method="post">
+                <input type="text" name="prodID" placeholder="Product ID">
+                <input type="text" name="prodName" placeholder="Product Name">
+                <input type="text" name="prodStock" placeholder="Quantity">
+                <input type="number" name="prodPrice" step="0.01" placeholder="Price">
+                <input type="text" name="prodImage" placeholder="Image URL">
+                <input type="submit" value="Add">
+            </form>
+
+            <?php
+            // Product Add Form
+            if (isset($_POST['prodID']) && isset($_POST['prodName']) && isset($_POST['prodStock']) && isset($_POST['prodPrice']) && isset($_POST['prodImage'])) {
+                $id = $_POST['prodID'];
+                $name = $_POST['prodName'];
+                $stock = $_POST['prodStock'];
+                $price = $_POST['prodPrice'];
+                $image = $_POST['prodImage'];
+
+                $sql = "INSERT INTO Inventory VALUES (:id, :name, :price, :stock, :image);";
+                $stmt = $pdo->prepare($sql);
+                $stmt->execute(['id' => $id, 'name' => $name, 'price' => $price, 'stock' => $stock, 'image' => $image]);
+
+                echo "<p>Product ${id} added to the inventory. Refresh to see the changes.</p>\n";
 
             }
             

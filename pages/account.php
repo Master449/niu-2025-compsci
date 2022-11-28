@@ -10,6 +10,12 @@
 
     Date: 11/30/2022
 
+    This is the login / logout page for the Users. If the user is currently logged in,
+    it will display the logout button, otherwise it will display the login form.
+
+    After successful logon it will send the customer to the home page.
+    Successful employee login will send the employee to the employee dashboard.
+
 -->
 
 <html>
