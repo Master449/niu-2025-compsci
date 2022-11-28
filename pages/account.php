@@ -27,6 +27,16 @@
 
     There are more accounts however, they are located in the database and SQL script.
 
+    Session Variables Quick Reference:
+        ['loggedIn']        Boolean     If a User is logged in
+        ['customer']        Boolean     If a User is a customer
+        ['employee']        Boolean     If a User if an Employee
+        ['user_id']         String      Stores their user_id
+        ['first_name']      String      Stores their First Name
+        ['last_name']       String      Stored their Last Name
+        ['email_addr']      String      Stored their Email Address
+
+
 */?>
 
 <html>
