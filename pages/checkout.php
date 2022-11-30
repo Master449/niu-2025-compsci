@@ -59,7 +59,7 @@ button {
                 </tr>
                 <tr>
                     <td>State:</td>
-                    <td><input type="text" placeholder="State" required></td>
+                    <td><input type="text" name="state" placeholder="State" required></td>
                 </tr>
                 <tr>
                     <td>Zip:</td>
@@ -101,14 +101,6 @@ button {
             }
 
             if (isset($_POST['checkout'])) {
-                // Cart         cart_id, id_inv, quantity, id_user
-                // Inventory    id_inv, inv_name, inv_price, inv_desc, inv_image
-                // Orders       order_no, tracking_no, process_state, order_date, user_email, id_emp
-                // OrderInfo    no_order, id_inv, quantity
-                // Shipping     shipping_id, country, state_province, city, zipcode, address, user_email
-                // Billing      billing_id, country, state_province, city, zipcode, address, user_email
-
-
                 // Shipping Information
                 $address = $_POST['address'];
                 $city = $_POST['city'];
@@ -125,40 +117,57 @@ button {
                 $email = $_SESSION['email_addr'];
                 $user_id = $_SESSION['user_id'];
 
+
                 // Insert Shipping Information
-                $sql = "INSERT INTO Shipping (country, state_province, city, zipcode, address, user_email) VALUES ('USA', '$state', '$city', '$zip', '$address', '$email')";
+                $sql = "INSERT INTO Shipping (country, state_province, city, zipcode, address, user_email) VALUES ('USA', '$state', '$city', '$zip', '$address', '$email');";
                 $pdo->exec($sql);
 
                 // Insert Billing Information
                 // This used to be separate, but were on a time crunch
-                $sql = "INSERT INTO Billing (country, state_province, city, zipcode, address, user_email) VALUES ('USA', '$state', '$city', '$zip', '$cardnumber', '$email')";
-
-                // Insert Order
-                $sql = "INSERT INTO Orders (order_date, user_email, id_emp) VALUES (NOW(), '$email', 10)";
+                $sql = "INSERT INTO Billing (country, state_province, city, zipcode, address, user_email) VALUES ('USA', '$state', '$city', '$zip', '$address', '$email');";
                 $pdo->exec($sql);
 
-                // Insert Order Info
-                $sql = "INSERT INTO OrderInfo (no_order, id_inv, quantity) VALUES (LAST_INSERT_ID(), 1, 1)";
+                // Orders
+                $order_no = $user_id + 1200;
+                $tracking_no = $user_id + 1000;
+                $process_state = "Processing";
+                $emp_id = 10;
+                date_default_timezone_set('America/Los_Angeles');
+                $order_date = date('Y-m-d h:i:s', time());
+                
+                $sql = "INSERT INTO Orders (order_no, track_no, process_state, order_date, user_email, id_emp) VALUES ('$order_no', '$tracking_no', '$process_state', '$order_date', '$email', '$emp_id');";
                 $pdo->exec($sql);
 
-                // Substract cart quantity from inventory
-                $sql = "SELECT * FROM Cart WHERE id_user = $user_id";
+                // Insert Order Info, looping through the customers cart
+                $sql = "SELECT * FROM Cart WHERE id_user = $user_id AND id_inv > 0;";
                 $result = $pdo->query($sql);
-                $row = $result->fetch();
-                $quantity = $row['quantity'];
+                $result->setFetchMode(PDO::FETCH_BOTH);
 
-                foreach($pdo->query($sql) as $row) {
-                    $quantity = $row['quantity'];
-                    $id_inv = $row['id_inv'];
-                    $sql = "UPDATE Inventory SET inv_quantity = inv_quantity - $quantity WHERE id_inv = $id_inv";
+                foreach ($result as $row) {
+                    $inv_id = $row[1];
+                    $quantity = $row[3];
+                    $sql = "INSERT INTO OrderInfo (no_order, id_inv, quantity) VALUES ('$order_no', '$inv_id', '$quantity');";
                     $pdo->exec($sql);
                 }
 
-                // Delete all items from cart
-                $sql = "DELETE FROM Cart WHERE id_user = $user_id";
-                $pdo->exec($sql);
+                // Substract cart quantity from inventory
+                $sql = "SELECT * FROM Cart WHERE id_user = $user_id AND id_inv > 0;";
+                $result = $pdo->query($sql);
+                $result->setFetchMode(PDO::FETCH_ASSOC);
 
-                // Redirect to confirmation page
+                foreach($result as $row) {
+                    $quantity = $row['quantity'];
+                    $id_inv = $row['id_inv'];
+                    $sql = "UPDATE Inventory SET inv_stock = inv_stock - $quantity WHERE inv_id = $id_inv";
+                    $pdo->exec($sql);
+                }
+
+  
+                // Delete all items from cart
+                $query = "UPDATE Cart SET id_inv = 0 WHERE id_user = :user_id;";
+                $statement = $pdo->prepare($query);
+                $statement->execute(array(':user_id' => $_SESSION['user_id']));
+                $pdo->exec($sql);
             }
 
             ?>
