@@ -50,19 +50,6 @@ button {
             <tr>
                     <td colspan="2"><h2>Shipping Information</h2></td>
                 </tr>
-                <tr>
-                    <td>First Name:</td>
-                    <td><input type="text" name="firstname" placeholder="John" required></td>
-                </tr>
-                <tr>
-                    <td>Last Name:</td>
-                    <td><input type="text" name="lastname" placeholder="Doe" required></td>
-                </tr>
-                <tr>
-                    <td>Email:</td>
-                    <td><input type="text" name="email" placeholder="email@email.com" required></td>
-                </tr>
-                <tr>
                     <td>Address:</td>
                     <td><input type="text" name="address" placeholder="1234 Main St" required></td>
                 </tr>
@@ -72,42 +59,13 @@ button {
                 </tr>
                 <tr>
                     <td>State:</td>
-                    <td><input type="text" placeholder="State" required></td>
+                    <td><input type="text" name="state" placeholder="State" required></td>
                 </tr>
                 <tr>
                     <td>Zip:</td>
                     <td><input type="text" name="zip" placeholder="12345" required></td>
                 </tr>
                 <tr></tr>
-                <table>
-                    <tr>
-                        <td colspan="2"><h2>Billing Information</h2></td>
-                    </tr>
-                    <tr>
-                        <td>First Name:</td>
-                        <td><input type="text" name="bfirstname" placeholder="John" required></td>
-                    </tr>
-                    <tr>
-                        <td>Last Name:</td>
-                        <td><input type="text" name="blastname" placeholder="Doe" required></td>
-                    </tr>
-                    <tr>
-                        <td>Address:</td>
-                        <td><input type="text" name="baddress" placeholder="1234 Main St" required></td>
-                    </tr>
-                    <tr>
-                        <td>City:</td>
-                        <td><input type="text" name="bcity" placeholder="City" required></td>
-                    </tr>
-                    <tr>
-                        <td>State:</td>
-                        <td><input type="text" name="bstate" placeholder="State" required></td>
-                    </tr>
-                    <tr>
-                        <td>Zip:</td>
-                        <td><input type="text" name="bzip" placeholder="12345" required></td>
-                    </tr>
-                </table>
                 <table>
                     <tr>
                         <td colspan="2"><h2>Payment Information</h2></td>
@@ -144,32 +102,72 @@ button {
 
             if (isset($_POST['checkout'])) {
                 // Shipping Information
-                //$firstname = $_POST['firstname'];
-                //$lastname = $_POST['lastname'];
-                $email = $_POST['email'];
-                //$address = $_POST['address'];
-                //$city = $_POST['city'];
-                //$state = $_POST['state'];
-                //$zip = $_POST['zip'];
-
-                // Billing Information
-                //$bfirstname = $_POST['bfirstname'];
-                //$blastname = $_POST['blastname'];
-                //$baddress = $_POST['baddress'];
-                //$bcity = $_POST['bcity'];
-                //$bstate = $_POST['bstate'];
-                //$bzip = $_POST['bzip'];
+                $address = $_POST['address'];
+                $city = $_POST['city'];
+                $state = $_POST['state'];
+                $zip = $_POST['zip'];
 
                 // Card
-                //$cardholder = $_POST['cardholder'];
-                //$cardnumber = $_POST['cardnumber'];
-                //$expiration = $_POST['expiration'];
-                //$securitycode = $_POST['securitycode'];
+                $cardholder = $_POST['cardholder'];
+                $cardnumber = $_POST['cardnumber'];
+                $expiration = $_POST['expiration'];
+                $securitycode = $_POST['securitycode'];
 
-                $pattern = "^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,3})$^";  
-                if (!preg_match ($pattern, $email) ){  
-                    echo "Email is not valid.";  
+                // Get the user's email
+                $email = $_SESSION['email_addr'];
+                $user_id = $_SESSION['user_id'];
+
+
+                // Insert Shipping Information
+                $sql = "INSERT INTO Shipping (country, state_province, city, zipcode, address, user_email) VALUES ('USA', '$state', '$city', '$zip', '$address', '$email');";
+                $pdo->exec($sql);
+
+                // Insert Billing Information
+                // This used to be separate, but were on a time crunch
+                $sql = "INSERT INTO Billing (country, state_province, city, zipcode, address, user_email) VALUES ('USA', '$state', '$city', '$zip', '$address', '$email');";
+                $pdo->exec($sql);
+
+                // Orders
+                $order_no = $user_id + 1200;
+                $tracking_no = $user_id + 1000;
+                $process_state = "Processing";
+                $emp_id = 10;
+                date_default_timezone_set('America/Los_Angeles');
+                $order_date = date('Y-m-d h:i:s', time());
+                
+                $sql = "INSERT INTO Orders (order_no, track_no, process_state, order_date, user_email, id_emp) VALUES ('$order_no', '$tracking_no', '$process_state', '$order_date', '$email', '$emp_id');";
+                $pdo->exec($sql);
+
+                // Insert Order Info, looping through the customers cart
+                $sql = "SELECT * FROM Cart WHERE id_user = $user_id AND id_inv > 0;";
+                $result = $pdo->query($sql);
+                $result->setFetchMode(PDO::FETCH_BOTH);
+
+                foreach ($result as $row) {
+                    $inv_id = $row[1];
+                    $quantity = $row[3];
+                    $sql = "INSERT INTO OrderInfo (no_order, id_inv, quantity) VALUES ('$order_no', '$inv_id', '$quantity');";
+                    $pdo->exec($sql);
                 }
+
+                // Substract cart quantity from inventory
+                $sql = "SELECT * FROM Cart WHERE id_user = $user_id AND id_inv > 0;";
+                $result = $pdo->query($sql);
+                $result->setFetchMode(PDO::FETCH_ASSOC);
+
+                foreach($result as $row) {
+                    $quantity = $row['quantity'];
+                    $id_inv = $row['id_inv'];
+                    $sql = "UPDATE Inventory SET inv_stock = inv_stock - $quantity WHERE inv_id = $id_inv";
+                    $pdo->exec($sql);
+                }
+
+  
+                // Delete all items from cart
+                $query = "UPDATE Cart SET id_inv = 0 WHERE id_user = :user_id;";
+                $statement = $pdo->prepare($query);
+                $statement->execute(array(':user_id' => $_SESSION['user_id']));
+                $pdo->exec($sql);
             }
 
             ?>

@@ -38,7 +38,19 @@
 
 
 */?>
+<style>
+table {
+    display: inline-block;
+}
 
+form {
+    float: none;
+}
+
+.button {
+    float: none;
+}
+</style>
 <html>
     <head>
         <title>Assignment 9</title>
@@ -62,11 +74,35 @@
                 include "../hidden.php";
                 session_start();
 
+                try {
+                    $pdo = new PDO($dbname, $username, $password);
+                }
+                catch(PDOexception $e) {
+                    echo "<p>Connection to database failed: ${$e->getMessage()}</p>\n";
+                }
+
                 if (isset($_SESSION['user_id'])) {
+                    // if the User is a customer, this displays their Orders
+                    if ($_SESSION['customer'] == true) {
+                        $sql = "SELECT track_no, process_state, order_date FROM Orders WHERE user_email = '" . $_SESSION['email_addr'] . "'";
+                        $result = $pdo->query($sql);
+                        $orders = $result->fetchAll(PDO::FETCH_ASSOC);
+                        echo "<div>";
+                        echo "<h2 style=\"text-align: center;\">Orders</h2>";
+                        echo "<table>";
+                        echo "<tr><th>Tracking Number</th><th>Process State</th><th>Order Date</th></tr>";
+                        
+                        foreach ($orders as $order) {
+                            echo "<tr><td>" . $order['track_no'] . "</td><td>" . $order['process_state'] . "</td><td>" . $order['order_date'] . "</td></tr>";
+                        }
+                        echo "</table>";
+                        echo "</div>";
+                    }
+                    
                     // logout button
-                    echo "<form action=\"account.php\" method=\"post\">";
+                    echo "<div><form action=\"account.php\" method=\"post\">";
                     echo "<input type=\"submit\" name=\"Logout\" value=\"Logout\" class=\"button\">";
-                    echo "</form>";
+                    echo "</form></div>";
                 } else {
                     echo "<form action=\"account.php\" method=\"post\">";
                     echo "<label for=\"user\">Username:</label>";
@@ -79,13 +115,6 @@
                     echo "<input type=\"checkbox\" id=\"employee\" name=\"employee\" value=\"emp\"><br>";
                     echo "<input type=\"submit\" value=\"Login\" class=\"button\">";
                     echo "</form>";
-                }
-
-                try {
-                    $pdo = new PDO($dbname, $username, $password);
-                }
-                catch(PDOexception $e) {
-                    echo "<p>Connection to database failed: ${$e->getMessage()}</p>\n";
                 }
 
                 // If the checkbox is checked, then the user is an employee
@@ -159,7 +188,5 @@
                Use the employee ID, and password. */
             ?>
         </div>
-
-
     </body>
 </html>

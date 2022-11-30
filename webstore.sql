@@ -89,7 +89,7 @@ CREATE TABLE OrderInfo (
 
 CREATE TABLE Shipping (
 
-    shipping_id INT NOT NULL UNIQUE,
+    shipping_id INT NOT NULL UNIQUE AUTO_INCREMENT,
     country CHAR(50) NOT NULL,
     state_province CHAR(50) NOT NULL,
     city CHAR(50) NOT NULL,
@@ -104,7 +104,7 @@ CREATE TABLE Shipping (
 
 CREATE TABLE Billing (
 
-    billing_id INT NOT NULL UNIQUE,
+    billing_id INT NOT NULL UNIQUE auto_increment,
     country CHAR(50) NOT NULL,
     state_province CHAR(50) NOT NULL,
     city CHAR(50) NOT NULL,
