@@ -21,7 +21,7 @@ public class FBMICalc {
         System.out.print("\tWhat is your cats name?: ");
         catName = userInput.nextLine();
 
-        // Get the circumference of their ribcage
+        // Get the circumference of their ribcage (added the cats name as a nice touch)
         System.out.print("\tWhat is the circumference of " + catName + " ribcage?: ");
         circumferenceRigcage = userInput.nextDouble();
 
@@ -29,10 +29,13 @@ public class FBMICalc {
         System.out.print("\tWhat is the length of " + catName + " leg?: ");
         legLength = userInput.nextDouble();
 
-        // Calculate BMI
+        // Calculate BMI with the given formula
         BMI = ((circumferenceRigcage / 0.7062) - legLength) / 0.9156 - legLength;
 
         // Switch statements don't have conditionals
+        // so I had to go with this mess. There might
+        // be a way to do this with a switch, but that 
+        // is currently out of my scope.
         if (BMI < 10) {
             result = "Very Underweight";
         } else if (BMI < 15) {
@@ -47,8 +50,10 @@ public class FBMICalc {
             result = "Very Obese";
         }
 
-        // Output the cats BMI, and the catergory they fall under
+        // Print out cats BMI as "catName's BMI is 0.00"
         System.out.format("%ss BMI is %.2f", catName, BMI);
+
+        // Print out their catergory they fall under
         System.out.println("\nThis puts them into the " + result + " catergory.");
     }
 }
