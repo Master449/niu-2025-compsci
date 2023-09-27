@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">ConstraintLayout Exercise</string>
+    <string name="phone">Samsung Galaxy S6</string>
+    <string name="buttonBuy">BUY</string>
+    <string name="buttonPricing">PRICING</string>
+    <string name="buttonDetails">DETAILS</string>
+</resources>
