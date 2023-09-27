@@ -23,6 +23,8 @@ public class ASCIIArt {
         System.out.print("Please select your choice of ASCII Shape:\n\t1. Trapezoid\n\t2. Heptagon\n\t3. Rectangle\n\t4. Right Triangle\n\t5. Square\n\nChoice: ");
 
         // While loop to validate user input
+        // used a do while loop since I want
+        // it to run at least once
         do {
 
             // Get users input
