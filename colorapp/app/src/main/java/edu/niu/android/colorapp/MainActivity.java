@@ -115,19 +115,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Borrowed this from TipCalculator
-    private class TextChangeHandler implements TextWatcher
-    {
-        public void afterTextChanged(Editable e)
-        {
+    private class TextChangeHandler implements TextWatcher {
+        public void afterTextChanged(Editable e) {
             ChangeColor();
         }
 
-        public void beforeTextChanged(CharSequence s, int start, int count, int after)
-        {
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
         }
 
-        public void onTextChanged(CharSequence s, int start, int before, int after)
-        {
+        public void onTextChanged(CharSequence s, int start, int before, int after) {
         }
     }
 }
