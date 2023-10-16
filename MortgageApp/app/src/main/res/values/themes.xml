@@ -1,8 +1,9 @@
-<resources>
-    <style name="Theme.MortgageApp" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name = "android:textSize">22sp</item>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.MortgageApp" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your light theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
     </style>
+
+    <style name="Theme.MortgageApp" parent="Base.Theme.MortgageApp" />
 </resources>
