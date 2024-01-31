@@ -29,5 +29,3 @@ PRNTLNE  DC    C'1'
          DC    C'THE SUM OF '
 *
          END   MAIN           END MAIN PROGRAM
-/*
-//
