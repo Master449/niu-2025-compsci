@@ -1,9 +1,8 @@
 *****************************************************************
 *                                                               *
-* CSCI 360-0001           ASSIGNMENT 1              SPRING 2024 *
+* CSCI 360-0001               NOTES                 SPRING 2024 *
 *                                                               *
 * DEVELOPER NAME: David Flowers II                              *
-*       DUE DATE:  01/26/24                                     *
 *                                                               *
 *****************************************************************
 *
@@ -26,7 +25,9 @@
 * - Only allowed to use registers 2 - 11
 *        The rest have specific uses
 *
+**************************************************************
 ******************** RX INSTRUCTIONS *************************
+**************************************************************
 *
 * copies or loads in the 4 bytes at the absolute 
 * address represented by D(X,B) into R register
@@ -49,8 +50,9 @@ label    A     R,D(X,B)
 * represented by D(X,B) and subtracts it from the content of R
 label    S     R,D(X,B)
 *
-*
+**************************************************************
 ******************** RR INSTRUCTIONS *************************
+**************************************************************
 *
 * Copies the contents of R2 into R1
 label    LR    R1,R2
@@ -61,13 +63,18 @@ label    AR    R1,R2
 * Subtracts the contents of R2 from R1
 label    SR    R1,R2
 *
+**************************************************************
 ******************** ASSIST INSTRUCTIONS *********************
+**************************************************************
 *
 * Used to dump the contents of GPRs or program storage
         XDUMP  ,              General Purpose Registers
         XDUMP  D(X,B),length  Program storage from D(X,B) to length
+*       This will dump at (or exactly) the preceding 32bit boundary
 *
-*
+**************************************************************
+******************** EXAMPLE PROGRAM *************************
+**************************************************************
 *
 *label   instr op             line doc up to 71
 MAIN     CSECT
