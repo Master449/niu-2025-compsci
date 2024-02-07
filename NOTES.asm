@@ -13,10 +13,10 @@
 *
 * - Some instructions set a condition code
 *        The condition code relfects the results of the execution
-*          0 Result is equal to 0
-*          1 Result is less than 0
-*          2 Result is greater than 0
-*          3 Overflow
+*          0 Result is equal to 0       (0)
+*          1 Result is less than 0      (Negative)
+*          2 Result is greater than 0   (Positive)
+*          3 Overflow                   (Overflow)
 *     
 * - RX Instructions involve D(X,B)
 *        4 bytes long
@@ -25,6 +25,57 @@
 * - Only allowed to use registers 2 - 11
 *        The rest have specific uses
 *
+* - Reference Summary Quick Guide
+*        MACHINE INST FORMAT p. 2. - 3
+*        MACHINE INSTRUCT by Mneomic  p. 4 - 11
+*        MACHINE INSTRUCTIONS By Operation Code p. 12 - 13
+*        PSW (BC MODE) p. 22
+*        PROGRAM INTERUPT CODES p. 23
+*        CODE ASSIGNMENTS Code Tables p. 34 - 37
+*
+* - We should memorize S0C:
+*        S0C1  Operation  Exception (Non valid instruction)
+*        S0C4  Protection Exception (Valid Storage doesn't belong to you)
+*        S0C5  Addressing Exception (Trying to use invalid address)
+*        S0C6  Specification Exception (Load storage not on Fullword)
+*        S0C7  Data Exception (Dealing invalid packed decimals in storage)
+*        S0C9  Fixed Point Divide Exception
+*        S0CB  Decimal Divide Exception
+*
+* - Good way to remember:
+*        1   4      5   6
+*        Old People And Snakes
+*
+* Appendix D of the Textbook has a good explanation of them
+*
+* Besides syntax errors we will run into ABENDS (like core dumps)
+* Last 4 bytes of an ABEND will be the S0C code up there
+* 
+* After the type of ABEND:
+*   First two bits are the length of instruction
+*        Binary * 2 = Length
+*
+* Next two bits are the Condition Code
+*        After an instruction sets the CC
+*            NEVER set by the abending instruction
+*            Check Line 14 for CC
+*   
+* The rest is the address of next instruction
+* Figure out the length, and subtract the address of the last 3 bytes of the PSW
+* 
+* so lets say
+*        A_ 00 10 AB
+*
+* A in Binary = 10 10
+*        First two are the length / 2 so its length is 4
+*        Second two are the Condition Code, CC is 2 (Positive)
+*
+* 00 10 AB are the Address of the next instruction 
+*
+* EXAMPLE ABEND
+* 
+* 
+* 
 **************************************************************
 ******************** RX INSTRUCTIONS *************************
 **************************************************************
@@ -94,7 +145,7 @@ MAIN     CSECT
 *
 NUM1     DC    F'23'          DEFINE CONTSANT 23
 NUM2     DC    F'5'           DEFINE CONSTANT 5
-OUTSUM   DS    CL12           RAW STORAGE
+OUTSUM   DS    F              RAW STORAGE
 *
 PRNTLNE  DC    C'1'
          DC    C'THE SUM OF '
