@@ -33,44 +33,6 @@
 *        PROGRAM INTERUPT CODES p. 23
 *        CODE ASSIGNMENTS Code Tables p. 34 - 37
 *
-* Loads mean copy value into register
-* Load Address calculates D(X,B) address and stored it into a register
-*        Similar to a pointer
-*
-* Load Address of Storage
-         LA    2,NUM
-*        R2 -> NUM      DC   F'33
-         L     2,0(,2)
-*        or
-         L     2,NUM
-*
-* To increment in Deckers class just do
-         LA    5,4(,5)       Takes the contents of R5    ,5 
-*                            adds 4                      ,4
-*                            and puts it in 5             5
-*
-* If you need to add a value between 0 and 4095
-* You should use Load Address      
-*
-* Fastest way to zero out a register
-         SR    7,7       R7 - R7 store into R7
-*
-* Decrement a register by 1
-         BCTR  X,Y
-* We are not this far though
-* This is the Branch on Count To Register
-*        RX gets decremented by 1
-*        if the value is still > 0
-*        Branch to address in Y
-* If Y is 0, it doesn't branch, and only decrements
-*
-*
-         LA    12,3
-*
-**************************************************************
-******************** ABENDS AND CRASHES **********************
-**************************************************************
-*
 * - We should memorize S0C:
 *        S0C1  Operation  Exception (Non valid instruction)
 *        S0C4  Protection Exception (Valid Storage doesn't belong to you)
@@ -118,48 +80,7 @@
 *   op code begins with a C - F is a 6 byte instruction
 *
 *   CSECTS and LTORGS always begin on a double-word boundary (8 bytes)
-*
-PSW AT ABEND FFC50006 A0000030         SYSTEM = 0C6 SPECIFICATION 
-* S0C6 Specification Error
-* A in Binary is 1010 
-* 10  - 4 byte instruction (2 in binary * 2)
-* 10  - Condition code (result greater than 0, positive)
-* 00030 - Instruction that would've executed
-        
-         SR    3,5
-*        SR op code from the reference summary is 1B
-*        so encoded its 1B35
-* You can then do
-         DC    X'1B35'
-* This will do exactly what you think it will do
-* X meaning Hexidecimal encoded
-*
-**************************************************************
-************************ LITERALS ****************************
-**************************************************************
-*
-* Literals allow us to put a hardcoded value within the program
-* without the need for a DC
-*
-               =F'32'       fullword
-               =C'Hello'    for character
-               =P'2.5'      for packed
-               =X'01AF33'   for hexadecimal
-*
-* Literals get declared where the LTORG is, before any DS or DCs
-* We will use F and C before spring break, and learn the others after
-* Using any literals, we need BCR   B'1111',14 (We are already doing this)
-* 
-* Literals can be substitued for a D(X,B) address in struction
-*
-         A     5,=F'14'      Adds 4 to the contents of R5
-         C     3,=F'4        Compare R3 with fullword of 4
-*
-* Stay away from literals unless specifically given directions to use them
-* Compare is okay to use literal
-* DO NOT use the A literal
-*
-*        
+*   
 **************************************************************
 ******************** RX INSTRUCTIONS *************************
 **************************************************************
@@ -176,7 +97,6 @@ label    ST    R,D(X,B)
 * by D(X,B) into the last 3 bytes of R, also
 * 0s out the first byte
 label    LA    R,D(X,B)
-label    LA    R,D         Loads D into R12 Like saying 3(0,0)
 *
 * Adds the fullword value at the absolute address, 
 * represnete dby D(X,B) to the value stored in R
@@ -208,28 +128,6 @@ label    SR    R1,R2
         XDUMP  D(X,B),length  Program storage from D(X,B) to length
 *       This will dump at (or exactly) the preceding 32bit boundary
 *
-* Used to read an input. Reads length of bytes starting at D(X,B)
-* the length is usually 80 in this class
-label    XREAD D(X,B),length
-*        CC = 0 Sucessful Read
-*        CC = 1 End-of-file reached
-*
-* Used to print a line of output. Length is usually 133
-label    XPRNT D(X,B),length
-*        First char of print defined is used to indicate carriage control
-*        space    single spacing    C' '
-*        zero     double spacing    C'0'
-*        hyphen   triple spacing    C'-'
-*        1        new page          C'1'
-*
-* Used to conver a number from itws char to its binary representation
-label    XDECI   R,D(X,B)
-*        Stops scanning for digits when a space is reached
-*        First cahracter might be a digit, + or -
-*
-* 
-         XDECO
-*
 **************************************************************
 ******************** EXAMPLE PROGRAM *************************
 **************************************************************
@@ -258,39 +156,3 @@ PRNTLNE  DC    C'1'
          DC    C'THE SUM OF '
 *
          END   MAIN           END MAIN PROGRAM
-* Heres a basic while loop
-         XREAD RECORD,80
-LOOP1    BC    B'0111',ENDLOOP1
-*
-         XREAD RECORD,80
-         BC    B'1111',LOOP1
-ENDLOOP1 DS    0H             A GOOD WAY TO HAVE A LABEL WITHOUT INSTRU
-* Somewhere in storage RECORD is stored
-RECORD   DS    CL80           CHAR BLANK 80
-
-* On Assignment 4 the PSW is 
-PSW AT ABEND FFC50006 A0000030         SYSTEM = 0C6 SPECIFICATION 
-* S0C6 Specification Error
-* A in Binary is 1010 
-* 10  - 4 byte instruction (2 in binary * 2)
-* 10  - Condition code (result greater than 0, positive)
-* 00030 - Instruction that would've executed
-        
-         SR    3,5
-*        SR op code from the reference summary is 1B
-*        so encoded its 1B35
-* You can then do
-         DC    X'1B35'
-* This will do exactly what you think it will do
-* X meaning Hexidecimal encoded
-*
-* XPRNT EXAMPLE
-         XPRNT PRNTLINE,133
-* MORE CODE 
-PRNTLINE DC    C' '      SINGLE SPACED CARRIAGE CONTROL
-         DC    CL17'NUM1 IS EQUAL TO '
-ONUM1    DS    CL12      12 BYTE OUTPUT FOR NUM1
-         DC    5C' '     FIVE SPACES
-         DC    CL17'NUM2 IS EQUAL TO'
-ONUM2    DS    CL12      12 BYTE OUTPUT FOR NUM2
-         DC    69C' '    69 SPACES FOR REMAINDER OF LINE
