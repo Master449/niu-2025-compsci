@@ -67,6 +67,25 @@
 *
          LA    12,3
 *
+*
+* Compare
+         C     2,NUM1      
+         BC    b'0010',GTHAN   
+* This is equivalent to
+*    if (R2 >= NUM2)
+*        goto GTHAN
+*
+* Compare Register
+         CR    2,7     
+         BC    b'0010',GTHAN
+*
+* (the bitmask is in binary for the op code its looking for (2 in this))
+*
+* CC
+*  0    Equal
+*  1    1st < 2nd
+*  2    2st > 2nd
+* (the bitmask is in binary for the op code its looking for (2 in this))
 **************************************************************
 ******************** ABENDS AND CRASHES **********************
 **************************************************************
@@ -125,7 +144,8 @@ PSW AT ABEND FFC50006 A0000030         SYSTEM = 0C6 SPECIFICATION
 * 10  - 4 byte instruction (2 in binary * 2)
 * 10  - Condition code (result greater than 0, positive)
 * 00030 - Instruction that would've executed
-        
+*
+*       
          SR    3,5
 *        SR op code from the reference summary is 1B
 *        so encoded its 1B35
@@ -199,6 +219,14 @@ label    AR    R1,R2
 * Subtracts the contents of R2 from R1
 label    SR    R1,R2
 *
+* * * * * * EVEN - ODD PAIR * * * * * * * * * * 
+* Multiplies the contents of R2 from R1
+label    MR    R1,R2
+*
+* Divides the contents of R2 from R1 (R2 is the divisor)
+label    DR    R1,R2
+* * * * * * * * * * * * * * * * * * * * * * * *  
+*
 **************************************************************
 ******************** ASSIST INSTRUCTIONS *********************
 **************************************************************
@@ -258,6 +286,9 @@ PRNTLNE  DC    C'1'
          DC    C'THE SUM OF '
 *
          END   MAIN           END MAIN PROGRAM
+*
+*
+*
 * Heres a basic while loop
          XREAD RECORD,80
 LOOP1    BC    B'0111',ENDLOOP1
@@ -265,16 +296,11 @@ LOOP1    BC    B'0111',ENDLOOP1
          XREAD RECORD,80
          BC    B'1111',LOOP1
 ENDLOOP1 DS    0H             A GOOD WAY TO HAVE A LABEL WITHOUT INSTRU
+*
+*
+*
 * Somewhere in storage RECORD is stored
 RECORD   DS    CL80           CHAR BLANK 80
-
-* On Assignment 4 the PSW is 
-PSW AT ABEND FFC50006 A0000030         SYSTEM = 0C6 SPECIFICATION 
-* S0C6 Specification Error
-* A in Binary is 1010 
-* 10  - 4 byte instruction (2 in binary * 2)
-* 10  - Condition code (result greater than 0, positive)
-* 00030 - Instruction that would've executed
         
          SR    3,5
 *        SR op code from the reference summary is 1B
@@ -294,3 +320,43 @@ ONUM1    DS    CL12      12 BYTE OUTPUT FOR NUM1
          DC    CL17'NUM2 IS EQUAL TO'
 ONUM2    DS    CL12      12 BYTE OUTPUT FOR NUM2
          DC    69C' '    69 SPACES FOR REMAINDER OF LINE
+
+
+* CSECT MAIN LTORG END <- does not execute
+* Storage from the top to bottom, All in Hex 
+*  EXAMPLE DECODING
+* LOCAT  INSTRUCTION  REG INDEX REG  DISPLACEMENT
+* 00000A 5A           70  80         00      
+* IGNORE A            7   8          0
+*        A    7,0(,8)
+
+**************************************************************
+******************** MULTIPLICATION **************************
+**************************************************************
+* This is on the midterm
+* When doing binary multiplication and division we need the
+*    even-odd pair of registers
+*  0 & 1   or   2 & 3  etc
+*
+* First Operand is ALWAYS an even number
+* Second Operand is ALWAYS an odd number
+*
+* For the R instructions of M, MR, D, DR the second operand is the divisor
+*
+************ RX MULTIPLY ************
+         LA    3,15        PUT THE VALUE YOU WANT INTO ODD (15)
+         M     2,MULT      15 TIMES 3
+*                          R3 NOW CONTAINS 0000002D (45)
+*
+*                    00000000 0000002D
+*                       R2       R3
+MULT     DC    F'3'
+*
+************ RR MULTIPLY ************
+         LA    2,3         3 INTO R2
+         LA    3,15        PUT THE VALUE YOU WANT INTO ODD (15)
+         MR    2,2         15 TIMES 3 INTO R3
+*
+*                    00000000 0000002D
+*                       R2       R3
+

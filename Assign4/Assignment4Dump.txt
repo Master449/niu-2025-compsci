@@ -1,0 +1,168 @@
+
+                   J E S 2  J O B  L O G  --  S Y S T E M  8 5 6 1  --  N O D E  S V S C J E S 2        
+
+ 
+12.50.24 JOB06689 ---- WEDNESDAY, 14 FEB 2024 ----
+12.50.24 JOB06689  IRR010I  USERID KC03AA3  IS ASSIGNED TO THIS JOB.
+12.50.24 JOB06689  ICH70001I KC03AA3  LAST ACCESS AT 12:46:39 ON WEDNESDAY, FEBRUARY 14, 2024
+12.50.24 JOB06689  $HASP373 KC03AA3A STARTED - INIT 1    - CLASS A        - SYS 8561
+12.50.24 JOB06689  -                                      -----TIMINGS (MINS.)------                          -----PAGING COUNTS----
+12.50.24 JOB06689  -STEPNAME PROCSTEP    RC   EXCP   CONN       TCB       SRB  CLOCK          SERV  WORKLOAD  PAGE  SWAP   VIO SWAPS
+12.50.24 JOB06689  -JSTEP01              00     25      2       .00       .00     .0             4  BATCH        0     0     0     0
+12.50.24 JOB06689  -KC03AA3A ENDED.  NAME-David Flowers II     TOTAL TCB CPU TIME=      .00 TOTAL ELAPSED TIME=    .0
+12.50.24 JOB06689  $HASP395 KC03AA3A ENDED - RC=0000
+
+------ JES2 JOB STATISTICS ------
+
+
+  14 FEB 2024 JOB EXECUTION DATE
+
+
+           32 CARDS READ
+
+
+          115 SYSOUT PRINT RECORDS
+
+
+            0 SYSOUT PUNCH RECORDS
+
+
+           11 SYSOUT SPOOL KBYTES
+
+
+         0.00 MINUTES EXECUTION TIME
+       1 //KC03AA3A JOB ,'David Flowers II',MSGCLASS=H                           JOB06689
+       2 //JSTEP01  EXEC PGM=ASSIST                                                      
+       3 //STEPLIB  DD DSN=KC00NIU.ASSIST.LOADLIB,DISP=SHR                               
+       4 //SYSPRINT DD SYSOUT=*                                                          
+       5 //SYSIN DD *                                                                    
+       6 //                                                                              
+ICH70001I KC03AA3  LAST ACCESS AT 12:46:39 ON WEDNESDAY, FEBRUARY 14, 2024
+IEFA111I KC03AA3A IS USING THE FOLLOWING JOB RELATED SETTINGS:
+         SWA=ABOVE,TIOT SIZE=32K,DSENQSHR=DISALLOW,GDGBIAS=JOB
+IEF236I ALLOC. FOR KC03AA3A JSTEP01
+IGD103I SMS ALLOCATED TO DDNAME STEPLIB
+IEF237I JES2 ALLOCATED TO SYSPRINT
+IEF237I JES2 ALLOCATED TO SYSIN
+IEF142I KC03AA3A JSTEP01 - STEP WAS EXECUTED - COND CODE 0000
+IGD104I KC00NIU.ASSIST.LOADLIB                       RETAINED,  DDNAME=STEPLIB 
+IEF285I   KC03AA3.KC03AA3A.JOB06689.D0000102.?         SYSOUT        
+IEF285I   KC03AA3.KC03AA3A.JOB06689.D0000101.?         SYSIN         
+IEF373I STEP/JSTEP01 /START 2024045.1250
+IEF032I STEP/JSTEP01 /STOP  2024045.1250 
+        CPU:     0 HR  00 MIN  00.00 SEC    SRB:     0 HR  00 MIN  00.00 SEC    
+        VIRT:   584K  SYS:   408K  EXT:        0K  SYS:    11204K
+        ATB- REAL:                  1268K  SLOTS:                     0K
+             VIRT- ALLOC:      16M SHRD:       0M
+IEF375I  JOB/KC03AA3A/START 2024045.1250
+IEF033I  JOB/KC03AA3A/STOP  2024045.1250 
+        CPU:     0 HR  00 MIN  00.00 SEC    SRB:     0 HR  00 MIN  00.00 SEC    
+
+*** ASSIST 4.0/A2-05/15/82  470/V7A/0:OS/VS2  INS=SDFP7/X=BGHO, CHECK/TRC/=1180, OPTS=CDKMPR FROM PENN ST*NIU COMPSCI*LT            
+
+                                                                                                                                    
+
+                                                                                                               PAGE    1            
+
+  LOC  OBJECT CODE    ADDR1 ADDR2  STMT   SOURCE STATEMENT                                                                          
+000000                                1 DUMPEX   CSECT                                                                              
+000000                                2          USING DUMPEX,15 ESTABLISH REG 15 AS BASE REG                                       
+                                      3 *                                                                                           
+000000 1B77                           4          SR 7,7          CLEAR REG 7                                                        
+                                      5 *                                                                                           
+000002 4180 F024            00024     6          LA 8,NUM1       LOAD ADDRESS OF NUM1                                               
+000006 4190 F028            00028     7          LA 9,NUM2       LOAD ADDRESS OF NUM2                                               
+                                      8 *                                                                                           
+00000A 5A70 8000            00000     9          A 7,0(,8)       ADD NUM1 TO REG 7                                                  
+00000E 5A70 9000            00000    10          A 7,0(,9)       ADD NUM2 TO REG 7                                                  
+                                     11 *                                                                                           
+000012 41A0 F020            00020    12          LA 10,SUMMED    LOAD ADDRESS OF SUMMED                                             
+000016 5070 A000            00000    13          ST 7,0(,10)     STORE THE SUM OF VARIABLES                                         
+                                     14 *                                                                                           
+00001A E160 0000 0000 00000          15          XDUMP , DUMP    REGS                                                               
+                                     16 *                                                                                           
+                                     17          LTORG                                                                              
+                                     18 *                                                                                           
+000020                               19 SUMMED   DS F            FULLWORD OF ZERO TO HOLD SUMMED INTEGERS                           
+                                     20 *                                                                                           
+000024 000ED6AC                      21 NUM1     DC F'972460'      RANDOM INTEGER 1                                                 
+000028 47E21980                      22 NUM2     DC F'1206000000'  RANDOM INTEGER 2                                                 
+00002C 5020F032                      23 NUM3     DC F'1344335922'  RANDOM INTEGER 3                                                 
+                                     24 *                                                                                           
+                                     25          END DUMPEX                                                                         
+
+***  NO   STATEMENTS FLAGGED -  NO   WARNINGS,  NO   ERRORS                                                                         
+
+*** DYNAMIC CORE AREA USED:  LOW:    1084 HIGH:     416 LEAVING:  492068 FREE BYTES. AVERAGE:       57 BYTES/STMT ***               
+
+*** ASSEMBLY TIME =    0.000 SECS,    26000 STATEMENTS/SEC ***                                                                      
+
+*** PROGRAM EXECUTION BEGINNING - ANY OUTPUT BEFORE EXECUTION TIME MESSAGE IS PRODUCED BY USER PROGRAM ***                          
+
+BEGIN XSNAP - CALL     1 AT E0000020 USER REGISTERS                                                                                 
+
+ REGS 0-7      F4F4F4F4    F4F4F4F4    F4F4F4F4    F4F4F4F4    F4F4F4F4    F4F4F4F4    F4F4F4F4    47F0F02C                         
+ REGS 8-15     00000024    00000028    00000020    F4F4F4F4    F4F4F4F4    00000030    FFFE7960    00000000                         
+
+                                                                                                                                    
+
+*** EXECUTION TIME =    0.000 SECS.        10 INSTRUCTIONS EXECUTED -    10000 INSTRUCTIONS/SEC ***                                 
+
+*** FIRST CARD NOT READ: NO CARDS READ:FILE UNOPENED                                                                                
+
+ ASSIST COMPLETION DUMP                                                                                                             
+
+PSW AT ABEND FFC50006 A0000030       COMPLETION CODE   SYSTEM = 0C6 SPECIFICATION                                                   
+
+** TRACE OF INSTRUCTIONS JUST BEFORE TERMINATION: PSW BITS SHOWN ARE THOSE BEFORE CORRESPONDING INSTRUCTION DECODED ***             
+
+  IM LOCATION    INSTRUCTION :  IM = PSW BITS 32-39(ILC,CC,MASK) BEFORE INSTRUCTION EXECUTED AT PROGRAM LOCATION SHOWN              
+
+  00  000000     1B77                                                                                                               
+
+  40  000002     4180 F024                                                                                                          
+
+  80  000006     4190 F028                                                                                                          
+
+  80  00000A     5A70 8000                                                                                                          
+
+  A0  00000E     5A70 9000                                                                                                          
+
+  A0  000012     41A0 F020                                                                                                          
+
+  A0  000016     5070 A000                                                                                                          
+
+  A0  00001A     E160 0000 0000                                                                                                     
+
+  E0  000020     47F0 F02C                                                                                                          
+
+  A0  00002C     5020 F032       <-- LAST INSTRUCTION DONE - PROBABLE CAUSE OF TERMINATION                                          
+
+                                                                                                                                    
+
+
+** TRACE OF LAST 10 BRANCH INSTRUCTIONS EXECUTED: PSW BITS SHOWN ARE THOSE BEFORE CORRESPONDING INSTRUCTION DECODED ***             
+
+  IM LOCATION    INSTRUCTION :  IM = PSW BITS 32-39(ILC,CC,MASK) BEFORE INSTRUCTION EXECUTED AT PROGRAM LOCATION SHOWN              
+
+  20  000020     47F0 F02C                                                                                                          
+
+ REGS 0-7      F4F4F4F4    F4F4F4F4    F4F4F4F4    F4F4F4F4    F4F4F4F4    F4F4F4F4    F4F4F4F4    47F0F02C                         
+ REGS 8-15     00000024    00000028    00000020    F4F4F4F4    F4F4F4F4    00000030    FFFE7960    00000000                         
+
+ FLTR 0-6      F4F4F4F4F4F4F4F4        F4F4F4F4F4F4F4F4        F4F4F4F4F4F4F4F4        F4F4F4F4F4F4F4F4                             
+
+ USER STORAGE                                                                                                                       
+
+                             CORE ADDRESSES SPECIFIED-     000000 TO 000178                                                         
+000000   1B774180 F0244190 F0285A70 80005A70    900041A0 F0205070 A000E160 00000000   *....0...0...........0...........*            
+000020   47F0F02C 000ED6AC 47E21980 5020F032    F5F5F5F5 00000000 F5F5F5F5 F5F5F5F5   *.00...O..S....0.5555....55555555*            
+000040   F5F5F5F5 F5F5F5F5 F5F5F5F5 F5F5F5F5    F5F5F5F5 F5F5F5F5 F5F5F5F5 F5F5F5F5   *55555555555555555555555555555555*            
+  LINES    000060-000140    SAME AS ABOVE                                                                         
+
+
+Assign 5 Scratchpaper        
+
+000000 41400017 5850F03C 18241A25 5020F040 18751864 1C665070 F0441894 5C40F050
+000020 1D495040 F0485050 F04CE060 F0000054 07FEF5F5 F5F5F5F5 F5F5F5F5 00000065
+000040 0000007C 00000913 00000009 00000004 00000001 F5F5F5F5 F5F5F5F5 00000000
