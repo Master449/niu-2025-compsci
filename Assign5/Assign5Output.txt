@@ -1,0 +1,135 @@
+
+                   J E S 2  J O B  L O G  --  S Y S T E M  8 5 6 1  --  N O D E  S V S C J E S 2        
+
+ 
+20.57.15 JOB09588 ---- TUESDAY,   27 FEB 2024 ----
+20.57.15 JOB09588  IRR010I  USERID KC03AA3  IS ASSIGNED TO THIS JOB.
+20.57.15 JOB09588  ICH70001I KC03AA3  LAST ACCESS AT 20:52:17 ON TUESDAY, FEBRUARY 27, 2024
+20.57.15 JOB09588  $HASP373 KC03AA3A STARTED - INIT 1    - CLASS A        - SYS 8561
+20.57.15 JOB09588  -                                      -----TIMINGS (MINS.)------                          -----PAGING COUNTS----
+20.57.15 JOB09588  -STEPNAME PROCSTEP    RC   EXCP   CONN       TCB       SRB  CLOCK          SERV  WORKLOAD  PAGE  SWAP   VIO SWAPS
+20.57.15 JOB09588  -JSTEP01              00     25      2       .00       .00     .0             4  BATCH        0     0     0     0
+20.57.15 JOB09588  -KC03AA3A ENDED.  NAME-David Flowers II     TOTAL TCB CPU TIME=      .00 TOTAL ELAPSED TIME=    .0
+20.57.15 JOB09588  $HASP395 KC03AA3A ENDED - RC=0000
+
+------ JES2 JOB STATISTICS ------
+
+
+  27 FEB 2024 JOB EXECUTION DATE
+
+
+           50 CARDS READ
+
+
+          108 SYSOUT PRINT RECORDS
+
+
+            0 SYSOUT PUNCH RECORDS
+
+
+           11 SYSOUT SPOOL KBYTES
+
+
+         0.00 MINUTES EXECUTION TIME
+       1 //KC03AA3A JOB ,'David Flowers II',MSGCLASS=H                           JOB09588
+       2 //JSTEP01  EXEC PGM=ASSIST                                                      
+       3 //STEPLIB  DD DSN=KC00NIU.ASSIST.LOADLIB,DISP=SHR                               
+       4 //SYSPRINT DD SYSOUT=*                                                          
+       5 //SYSIN DD *                                                                    
+       6 //                                                                              
+ICH70001I KC03AA3  LAST ACCESS AT 20:52:17 ON TUESDAY, FEBRUARY 27, 2024
+IEFA111I KC03AA3A IS USING THE FOLLOWING JOB RELATED SETTINGS:
+         SWA=ABOVE,TIOT SIZE=32K,DSENQSHR=DISALLOW,GDGBIAS=JOB
+IEF236I ALLOC. FOR KC03AA3A JSTEP01
+IGD103I SMS ALLOCATED TO DDNAME STEPLIB
+IEF237I JES2 ALLOCATED TO SYSPRINT
+IEF237I JES2 ALLOCATED TO SYSIN
+IEF142I KC03AA3A JSTEP01 - STEP WAS EXECUTED - COND CODE 0000
+IGD104I KC00NIU.ASSIST.LOADLIB                       RETAINED,  DDNAME=STEPLIB 
+IEF285I   KC03AA3.KC03AA3A.JOB09588.D0000102.?         SYSOUT        
+IEF285I   KC03AA3.KC03AA3A.JOB09588.D0000101.?         SYSIN         
+IEF373I STEP/JSTEP01 /START 2024058.2057
+IEF032I STEP/JSTEP01 /STOP  2024058.2057 
+        CPU:     0 HR  00 MIN  00.00 SEC    SRB:     0 HR  00 MIN  00.00 SEC    
+        VIRT:   584K  SYS:   268K  EXT:        0K  SYS:    11184K
+        ATB- REAL:                  1268K  SLOTS:                     0K
+             VIRT- ALLOC:      16M SHRD:       0M
+IEF375I  JOB/KC03AA3A/START 2024058.2057
+IEF033I  JOB/KC03AA3A/STOP  2024058.2057 
+        CPU:     0 HR  00 MIN  00.00 SEC    SRB:     0 HR  00 MIN  00.00 SEC    
+
+*** ASSIST 4.0/A2-05/15/82  470/V7A/0:OS/VS2  INS=SDFP7/X=BGHO, CHECK/TRC/=1180, OPTS=CDKMPR FROM PENN ST*NIU COMPSCI*LT            
+
+                                                                                                                                    
+
+                                                                                                               PAGE    1            
+
+  LOC  OBJECT CODE    ADDR1 ADDR2  STMT   SOURCE STATEMENT                                                                          
+                                      1 ***************************************************************                             
+                                      2 *                                                             *                             
+                                      3 * CSCI 360-1              ASSIGNMENT 5            SPRING 2024 *                             
+                                      4 *                                                             *                             
+                                      5 *   PROGRAMMER NAME: DAVID FLOWERS II                         *                             
+                                      6 *                                                             *                             
+                                      7 *          DATE DUE: 03/01/2024                               *                             
+                                      8 *                                                             *                             
+                                      9 * MAIN PROGRAM NAME: ASSIGN5                                  *                             
+                                     10 *                                                             *                             
+                                     11 *          FUNCTION: DECODING EXERCISE FROM A RAN PROGRAM     *                             
+                                     12 *                                                             *                             
+                                     13 ***************************************************************                             
+000000                               14 ASSIGN5  CSECT                                                                              
+000000                               15          USING ASSIGN5,15    ESTABLISH ADDRESSABILITY ON REG 15                             
+                                     16 *                                                                                           
+000000 4140 0017            00017    17          LA    4,23                                                                         
+000004 5850 F03C            0003C    18          L     5,60(0,15)                                                                   
+000008 1824                          19          LR    2,4                                                                          
+00000A 1A25                          20          AR    2,5                                                                          
+00000C 5020 F040            00040    21          ST    2,64(0,15)                                                                   
+000010 1875                          22          LR    7,5                                                                          
+000012 1864                          23          LR    6,4                                                                          
+000014 1C66                          24          MR    6,6                                                                          
+000016 5070 F044            00044    25          ST    7,68(0,15)                                                                   
+00001A 1894                          26          LR    9,4                                                                          
+00001C 5C40 F050            00050    27          M     4,80(0,15)                                                                   
+000020 1D49                          28          DR    4,9                                                                          
+000022 5040 F048            00048    29          ST    4,72(0,15)                                                                   
+000026 5050 F04C            0004C    30          ST    5,76(0,15)                                                                   
+00002A E060 F000 0054 00000          31          XDUMP ASSIGN5,84                                                                   
+                                     32 *                                                                                           
+                                     33          LTORG               LITERAL ORGANIZATION                                           
+                                     34 *                                                                                           
+000030 07FE                          35          DC    H'2046'                                                                      
+000034                               36          DS    2F                                                                           
+00003C 00000065                      37          DC    F'101'                                                                       
+000040                               38          DS    2F                                                                           
+000048 00000040                      39          DC    F'64'                                                                        
+00004C 00000009                      40          DC    F'9'                                                                         
+000050 00000001                      41          DC    F'1'                                                                         
+                                     42 *                                                                                           
+                                     43          END ASSIGN5                                                                        
+
+***  NO   STATEMENTS FLAGGED -  NO   WARNINGS,  NO   ERRORS                                                                         
+
+*** DYNAMIC CORE AREA USED:  LOW:    1112 HIGH:     348 LEAVING:  492108 FREE BYTES. AVERAGE:       33 BYTES/STMT ***               
+
+*** ASSEMBLY TIME =    0.000 SECS,    44000 STATEMENTS/SEC ***                                                                      
+
+*** PROGRAM EXECUTION BEGINNING - ANY OUTPUT BEFORE EXECUTION TIME MESSAGE IS PRODUCED BY USER PROGRAM ***                          
+
+BEGIN XSNAP - CALL     1 AT E0000030 USER STORAGE                                                                                   
+
+                             CORE ADDRESSES SPECIFIED-     000000 TO 000054                                                         
+000000   41400017 5850F03C 18241A25 5020F040    18751864 1C665070 F0441894 5C40F050   *. ....0.......0 ........0.... 0.*            
+
+000020   1D495040 F0485050 F04CE060 F0000054    07FEF5F5 F5F5F5F5 F5F5F5F5 00000065   *... 0...0...0.....5555555555....*            
+000040   0000007C 00000913 00000009 00000004    00000001 F5F5F5F5 F5F5F5F5 00000000   *....................55555555....*            
+
+                                                                                                                                    
+
+*** EXECUTION TIME =    0.000 SECS.        16 INSTRUCTIONS EXECUTED -    16000 INSTRUCTIONS/SEC ***                                 
+
+*** FIRST CARD NOT READ: NO CARDS READ:FILE UNOPENED                                                                                
+
+*** AM004 - NORMAL USER TERMINATION BY RETURN ***                                                                                   
+
