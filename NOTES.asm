@@ -6,12 +6,17 @@
 *                                                               *
 *****************************************************************
 *
+**************************************************************
+************************ BASICS ******************************
+**************************************************************
+*
 * - Comment every line as you write it
 * - Comments are either:
 *        1. Asterisk in Column 1
 *        2. 1 Space after Operand
 *
 * - Some instructions set a condition code
+*     Add and Subtract Registers:
 *        The condition code relfects the results of the execution
 *          0 Result is equal to 0       (0)
 *          1 Result is less than 0      (Negative)
@@ -32,6 +37,10 @@
 *        PSW (BC MODE) p. 22
 *        PROGRAM INTERUPT CODES p. 23
 *        CODE ASSIGNMENTS Code Tables p. 34 - 37
+*
+**************************************************************
+****************** INSTRUCTION BASICS ************************
+**************************************************************
 *
 * Loads mean copy value into register
 * Load Address calculates D(X,B) address and stored it into a register
@@ -86,6 +95,7 @@
 *  1    1st < 2nd
 *  2    2st > 2nd
 * (the bitmask is in binary for the op code its looking for (2 in this))
+*
 **************************************************************
 ******************** ABENDS AND CRASHES **********************
 **************************************************************
@@ -228,6 +238,15 @@ label    DR    R1,R2
 * * * * * * * * * * * * * * * * * * * * * * * *  
 *
 **************************************************************
+******************** SS INSTRUCTIONS *************************
+**************************************************************
+*
+* This copies 6 bytes from Storage 1 and puts it into Storage 2
+label    MVC   S1(6),S2     
+*
+* 
+*
+**************************************************************
 ******************** ASSIST INSTRUCTIONS *********************
 **************************************************************
 *
@@ -256,7 +275,7 @@ label    XDECI   R,D(X,B)
 *        First cahracter might be a digit, + or -
 *
 * 
-         XDECO
+*        XDECO
 *
 **************************************************************
 ******************** EXAMPLE PROGRAM *************************
@@ -289,6 +308,7 @@ PRNTLNE  DC    C'1'
 *
 *
 *
+*
 * Heres a basic while loop
          XREAD RECORD,80
 LOOP1    BC    B'0111',ENDLOOP1
@@ -296,6 +316,7 @@ LOOP1    BC    B'0111',ENDLOOP1
          XREAD RECORD,80
          BC    B'1111',LOOP1
 ENDLOOP1 DS    0H             A GOOD WAY TO HAVE A LABEL WITHOUT INSTRU
+*
 *
 *
 *
@@ -309,6 +330,9 @@ RECORD   DS    CL80           CHAR BLANK 80
          DC    X'1B35'
 * This will do exactly what you think it will do
 * X meaning Hexidecimal encoded
+*
+*
+*
 *
 * XPRNT EXAMPLE
          XPRNT PRNTLINE,133
@@ -359,4 +383,6 @@ MULT     DC    F'3'
 *
 *                    00000000 0000002D
 *                       R2       R3
+*
+         
 
