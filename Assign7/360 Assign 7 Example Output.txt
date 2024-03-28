@@ -1,0 +1,47 @@
+WOLFGANG AMADEUS MOZART       12345       15.80       25.50            402.90                                                       
+
+RICHARD STRAUSS               23456       19.80       70.10           1387.98                                                       
+
+AMY BEACH                     22132       10.80       31.20            336.96                                                       
+
+DAME ETHEL SMYTHE             65465       22.80       15.90            362.52                                                       
+
+PETER ILYICH TCHAIKOVSKY      44560       23.28       34.07            793.15                                                       
+
+ANTON BRUCKNER                99870       22.80       21.00            478.80                                                       
+
+LUDWIG VAN BEETHOVEN          13345       15.80       25.50            402.90                                                       
+
+JOHANNES BRAHMS               24456       19.80       80.01           1584.20                                                       
+
+BELA BARTOK                   22532       10.80       31.20            336.96                                                       
+
+MAX REGER                     11465       22.80       15.90            362.52                                                       
+
+SAMUEL BARBER                 13360       23.28       34.07            793.15                                                       
+
+GIUSEPPE VERDI                99873       22.80       21.00            478.80                                                       
+
+JOHANN SEBASTIAN BACH         12342       15.80       25.50            402.90                                                       
+
+JOSEPH HAYDN                  23452       19.80       20.01            396.20                                                       
+
+GEORG FRIEDRICH HANDEL        22131       10.80       31.20            336.96                                                       
+
+NIKOLAI RIMSKY-KORSAKOV       44378       23.28       34.07            793.15                                                       
+
+EDWARD ELGAR                  65411       22.80       15.90            362.52                                                       
+
+CLAUDE DEBUSSY                99855       22.80       21.00            478.80                                                       
+
+ANTONIN DVORAK                13346       15.80       25.50            402.90                                                       
+
+THOMAS TALLIS                 24457       19.80       60.01           1188.20                                                       
+
+RALPH VAUGHAN WILLIAMS        22538       10.80       31.20            336.96                                                       
+
+RICHARD WAGNER                11477       22.80       15.90            362.52                                                       
+
+FREDERIC CHOPIN               17777       23.28       34.07            793.15                                                       
+
+JOAN TOWER                    99211       22.80       21.00            478.80                                                       

@@ -1,0 +1,47 @@
+WOLFGANG AMADEUS MOZART      12345           15              80            1675             268               67             1340
+
+RICHARD STRAUSS              23456           19              80            1530             244               61             1225
+
+AMY BEACH                    22132           10              80             969             155               38              776
+
+DAME ETHEL SMYTHE            65456           22              80            2645             423              105             2117
+
+PETER ILYICH TCHAIKOVSKY     44560           23              28             680             108               27              545
+
+ANTON BRUCKNER               99870           22              80            1739             278               69             1392
+
+LUDWIG VAN BEETHOVEN         13345           15              80            1675             268               67             1340
+
+JOHANNES BRAHMS              24456           19              80            1530             244               61             1225
+
+BELA BARTOK                  22532           10              80             969             155               38              776
+
+MAX REGER                    11465           22              80            2645             423              105             2117
+
+SAMUEL BARBER                13360           23              28             680             108               27              545
+
+GIUSEPPE VERDI               99873           22              80            1739             278               69             1392
+
+JOHANN SEBASTIAN BACH        12342           15              80            1675             268               67             1340
+
+JOSEPH HAYDN                 23452           19              80            1530             244               61             1225
+
+GEORG FRIEDRICH HANDEL       22131           10              80             969             155               38              776
+
+EDWARD ELGAR                 65411           22              80            2645             423              105             2117
+
+NIKOLAI RIMSKY-KORSAKOV      44378           23              28             680             108               27              545
+
+CLAUDE DEBUSSY               99855           22              80            1739             278               69             1392
+
+ANTONIN DVORAK               13346           15              80            1675             268               67             1340
+
+THOMAS TALLIS                24457           19              80            1530             244               61             1225
+
+RALPH VAUGHAN WILLIAMS       22538           10              80             969             155               38              776
+
+RICHARD WAGNER               11477           22              80            2645             423              105             2117
+
+FREDERIC CHOPIN              17777           23              28             680             108               27              545
+
+JOAN TOWER                   99211           22              80            1739             278               69             1392
