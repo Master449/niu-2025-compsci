@@ -384,5 +384,74 @@ MULT     DC    F'3'
 *                    00000000 0000002D
 *                       R2       R3
 *
-         
-
+**************************************************************
+******************** PACKED DECIMALS *************************
+**************************************************************  
+*
+* We are responible for saving the callers registers
+*
+* Assignment 7
+PAYROLL  CSECT
+*
+*  STANDARD ENTRY LINKAGE WITH R12 AS BASE REGISTER
+*
+         STM   14,12,12(13)  SAVE REGS IN CALLER'S SAVE AREA
+         LR    12,15         COPY CSECT ADDR INTO R12
+         USING PAYROLL,12    ESTABLISH R12 AS THE BASE REG
+         LA    14,REGSAVE    R14 POINTS TO THIS CSECT'S SAVE AREA
+         ST    14,8(,13)     STORE ADDR OF THIS CSECT'S SAVE AREA
+         ST    13,4(,14)     STORE ADDR OF CALLER'S SAVE AREA
+         LR    13,14         POINT R13 AT THIS CSECT'S SAVE AREA
+*
+*
+         XREAD RECORD,80     READ FIRST RECORD
+*
+         MVC   OEMPNME(25),IEMPNME   MOVE EMP NAME INTO PRINT LINE
+         MVC   OEMPID(5),IEMPID      MOVE EMP ID INTO PRINT LINE
+*
+         PACK  PHRPAY(3),IHRPAY(5)   PACK HOURLY PAY
+         PACK  PHOURS(3),IHOURS(5)   PACK HOURS WORKED
+*
+         ZAP   PCALC(6),PHRPAY(3)    COPY HOUR PLAY INTO CALC FIELD
+*
+         MP    PCALC(6),PHOURS(3)  MULTIPLY HOURLY PAY BY HOURS WORKED
+*
+         SRP   PCALC(6),64-2,5     ROUND TO TWO DECIMAL PLACES
+*
+         LA    1,OGROSS+11
+         MVC   OGROSS(15),=X'402020206B2020206B2021204B2020'
+         EDMK  OGROSS(15),PCALC
+         BCTR  1,0
+         MVI   0(1),C'$'
+*
+*  STANDARD EXIT LINKAGE WITH RC OF 0
+*
+         SR    15,15        R15 = RETURN CODE OF 0
+         L     13,4(,13)    POINT R13 TO CALLER'S SAVE AREA
+         L     14,12(,13)   RESTORE REGISTER 14
+         LM    0,12,20(13)  RESTORE R0 THRU R12
+*
+         BR    14           RETURN TO CALLER
+*
+         LTORG
+*
+         ORG   PAYROLL+((*-PAYROLL+31)/32)*32
+         DC    C'HERE IS THE STORAGE: PAYROLL ***'
+*
+REGSAVE  DS    18F          PROGRAM'S REGISTER SAVE AREA
+*
+*  Here is where your storage will be defined.
+*
+PHRPAY   DC    PL3'0'
+PHOURS   DC    PL3'0'
+PCALC    DC    PL6'0'       CALCULATION FIELD
+*
+RECORD   DS    0H
+IEMPNME  DS    CL25               INPUT EMPLOYEE NAME
+         DS    CL1
+IEMPID   DS    CL5                INPUT EMPLOYEE ID
+IHRPAY   DS    ZL5                INPUT EMPLOYEE HOURLY PAY RATE
+IHOURS   DS    ZL5                INPUT EMPLOYEE HOURS WORKED
+         DS    CL39
+*
+         END   PAYROLL
