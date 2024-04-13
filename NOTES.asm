@@ -455,3 +455,46 @@ IHOURS   DS    ZL5                INPUT EMPLOYEE HOURS WORKED
          DS    CL39
 *
          END   PAYROLL
+
+* Assignment 8
+* Now do monday (extra credit turned in on Friday)
+*
+* Print 18 epmployee records per page
+*
+* Headers:
+*        Use a register to count the lines
+*        Prior to loop
+         LA    2,99    LOAD SOME HIGH VALUE
+* Right before the XPRNT
+         C     2,=F'18'    COMPARE WITH FULLWORD LITERAL
+         BL    NOHDRS      BRANCH LOW TO NO HEADERS
+* INCREMENT PAGE COUNTER
+         AP    PAGECTR(2),=PL1'1'         INCREMENT BY 1
+         MVC   OPAGECTR(4),=X"40202120'   SUPRESSES LEADING 0s with SP
+         ED    OPAGECTR(4),PPAGECTR
+* XPRNT HEADERS HERE
+         SR    2,2         RESET LINE COUNTER
+NOHDRS   XPRNT RECORD,133  PRINT EMPLOYEE RECORD
+         LA    2,1(,2)     ADD 1 TO LINE COUNTER
+*
+* Storage
+PPAGECTR DC    PL2'0'    PACKED PAGE COUNTER
+*
+*
+* You can also do 
+         BNZ   ENDLOOP1
+* To replace
+LOOP1    BC    B'0100',ENDLOOP1
+*
+*
+* $99,999,999.99
+* 09 99 99 99 99 9
+* 6 bytes
+* Pack into the minimum number of bytes at the start
+* ZAP into a bigger field if necessary
+PDEPAMT  DC    PL6'0'    099,999,999.99
+PSHRPRC  DC    PL3'0'           999.99C
+PSHRAMT  DC    PL8'0'
+PCALC    DC    PL11'0'
+* LONGEST PACKED DECIMAL WOULD BE 16 BYTES (F IN THAT FIELD)
+* XREAD First Record and grab those two percentages
