@@ -1,3 +1,15 @@
+/********************************************************************
+CSCI 490 - Assignment 4 - Semester Spring 2025
+
+Programmer: David Flowers II
+   Section: 1
+        TA: Keerthi Kalyan Botu
+  Date Due: 03/25/2025
+
+   Purpose: Header file for the program that simulates CPU 
+            scheduling in an Operating System.
+
+*********************************************************************/
 #ifndef Z1942130_PROJECT4_H
 #define Z1942130_PROJECT4_H
 
