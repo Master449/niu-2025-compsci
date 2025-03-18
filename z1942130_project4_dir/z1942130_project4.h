@@ -72,10 +72,10 @@ class Process {
     void terminate() {
         std::cout << "Process " << name << " (#" << id << ") has terminated, goodbye" << std::endl
                   << "CPU Bursts:  " << cpu_burst_count << std::endl
-                  << "I/O Bursts:  " << "(" << io_burst_count.first << "ms input, " << io_burst_count.second << "ms output)" << std::endl;
+                  << "I/O Bursts:  " << "(" << io_burst_count.first << "ms input, " << io_burst_count.second << "ms output)" << std::endl
                   << "CPU Total:   " << cpu_total << std::endl
                   << "I/O Total:   " << "(" << io_total.first << "ms input, " << io_total.second << "ms output)" << std::endl
-                  << "Total Idle:  " << idle_time << "ms" << endl;
+                  << "Total Idle:  " << idle_time << "ms" << std::endl;
     }
 };
 

@@ -93,13 +93,9 @@ int main(int argc, char *argv[]) {
     //
     // Main Scheduling Loop
     //
-    int timer, total_process, cpu_idle_time;
-    Process* active_process;
-    bool active_flag, input_flag, output_flag;
-
-    timer = 0;
-    total_process = 0;
-    cpu_idle_time = 0;
+    int timer = 0, total_process = 0, cpu_idle_time = 0;
+    Process* active_process = nullptr;
+    bool active_flag = false, input_flag = false, output_flag = false;
 
     // quick reference
     // deque has methods
@@ -129,22 +125,28 @@ int main(int argc, char *argv[]) {
             // If the burst has ended
             if (active_process->cpu_timer == 0) {
                 // Check to see if there is more to do after this
-                if (active_process->history_index == (active_process->history.size() - 1))
+                //if (active_process->history_index == (active_process->history.size() - 1))
                 // it could end CPU burst to I or O
                 // it could end a CPU burst to terminate
             }
         } else if(readyq.empty() && entryq.empty() && total_process < IN_USE) {
-            // no active process
-            //cpu_idle_time++;
+            // no active process, idle time
+            cpu_idle_time++;
         } else {
-            // obtain from readyq
-            // if readyq empty && total processes < IN_USE
-                // if entryq not empty
-                    // obtain a process from the entryq
-                    // store tmp burst
-                    // update active-flag
-                    // print if moved to queue
-        // }
+            // if ready is not empty and we have space for process
+            if (!(readyq.empty()) && total_process < IN_USE) {
+                active_process = readyq.front();
+                readyq.pop_front();
+            } else if (!(entryq.empty()) && total_process < IN_USE) {
+                // grab process, update flag, and print the change
+                active_process = entryq.front();
+                entryq.pop_front();
+                active_flag = true;
+                cout << "Process " << active_process->name
+                     << " (#" << active_process->id << ") " 
+                     << " has become active" << endl;
+            }
+        }
 
         // -------------- Input ------------------------
         // If (input_flag)
@@ -172,13 +174,61 @@ int main(int argc, char *argv[]) {
 
         
         // Timekeeping 2 electric boogaloo
-        // if timer % HOW_OFTEN == 0
-            // print ID of active
-            // print ID of input
-            // print ID of output
-            // contents of entryq
-            // contents of inputq
-            // contents of outputq
+        if (timer % HOW_OFTEN == 0) {
+            
+            cout << "CPU Idle: " << cpu_idle_time << endl << endl;
+
+            // Check if active process
+            if (active_flag) {
+                cout << "Active CPU ID: " << active_process->id << endl; 
+            } else {
+                cout << "Active CPU ID: None" << endl;
+            }
+
+            // Check if active input
+            if(input_flag) {
+                cout << "Active Input ID: " << inputq.front()->id << endl; 
+            } else {
+                cout << "Active Input ID: None" << endl;
+            }
+
+            // Check if active output
+            if(output_flag) {
+                cout << "Active Output ID: " << outputq.front()->id << endl; 
+            } else {
+                cout << "Active Output ID: None" << endl;
+            }
+
+            // Print contents of entryq
+            cout << "Entry Queue Contents: ";
+            for (auto eqit : entryq) {
+                cout << "ID: " << eqit->id << " ";
+            }
+            cout << endl;
+
+            // Print contents of readyq
+            cout << "Ready Queue Contents: ";
+            for (auto rqit : readyq) {
+                cout << "ID: " << rqit->id << " ";
+            }
+            cout << endl;
+
+            // Print contents of inputq
+            cout << "Input Queue Contents: ";
+            for (auto iqit : inputq) {
+                cout << "ID: " << iqit->id << " ";
+            }
+            cout << endl;
+
+            // Print contents of outputq
+            cout << "Output Queue Contents: ";
+            for (auto oqit : outputq) {
+                cout << "ID: " << oqit->id << " ";
+            }
+            cout << endl;
+
+
+        }
         timer++;
     } while (timer <= MAX_TIME);
 
