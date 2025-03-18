@@ -218,7 +218,7 @@ int main() {
             // In the end, is there really a winner?
             // terminate all child processes
             for (int i = 0; i < SPACESHIP_CAPACITY; i++) {
-                kill(fleet[i].pid, SIGKILL);
+                //kill(fleet[i].pid, SIGKILL);
                 // Arbitrary value to ensure all pipes are closed
                 // check logic on this one to see how this works
                 close_unused_pipes(pipe_holder, time(NULL));
