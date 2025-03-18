@@ -28,7 +28,7 @@ using std::pair;
 using std::stoi;
 
 // Constants
-const int MAX_TIME = 500;
+const int MAX_TIME = 50;
 const int IN_USE = 5;
 const int HOW_OFTEN = 25;
 
@@ -109,7 +109,10 @@ int main(int argc, char *argv[]) {
         if (total_process < IN_USE) {
             // entry queue iterator
             for (auto eqit : entryq) {
-                if (timer > eqit->arrival_time) {
+                if (timer >= eqit->arrival_time) {
+                    cout << "Process " << eqit->name
+                         << " (#" << eqit->id << ")" 
+                         << " has moved: Entry Queue -> Ready Queue" << endl;
                     readyq.push_back(eqit);
                     entryq.pop_front();
                     total_process++;
@@ -135,16 +138,21 @@ int main(int argc, char *argv[]) {
         } else {
             // if ready is not empty and we have space for process
             if (!(readyq.empty()) && total_process < IN_USE) {
+                // grab process, update flag, and print the change
                 active_process = readyq.front();
                 readyq.pop_front();
+                active_flag = true;
+                cout << "Process " << active_process->name
+                     << " (#" << active_process->id << ")" 
+                     << " has moved: Ready Queue -> Active" << endl;
             } else if (!(entryq.empty()) && total_process < IN_USE) {
                 // grab process, update flag, and print the change
                 active_process = entryq.front();
                 entryq.pop_front();
                 active_flag = true;
                 cout << "Process " << active_process->name
-                     << " (#" << active_process->id << ") " 
-                     << " has become active" << endl;
+                     << " (#" << active_process->id << ")" 
+                     << " has moved: Entry Queue -> Active" << endl;
             }
         }
 
@@ -174,9 +182,10 @@ int main(int argc, char *argv[]) {
 
         
         // Timekeeping 2 electric boogaloo
-        if (timer % HOW_OFTEN == 0) {
+        if (timer % HOW_OFTEN == 0 && timer != 0) {
             
-            cout << "CPU Idle: " << cpu_idle_time << endl << endl;
+            cout << endl << "--- Summary ---" << endl << endl;
+            cout << "CPU Idle: " << cpu_idle_time << endl;
 
             // Check if active process
             if (active_flag) {
@@ -202,30 +211,30 @@ int main(int argc, char *argv[]) {
             // Print contents of entryq
             cout << "Entry Queue Contents: ";
             for (auto eqit : entryq) {
-                cout << "ID: " << eqit->id << " ";
+                cout << eqit->id << " ";
             }
             cout << endl;
 
             // Print contents of readyq
             cout << "Ready Queue Contents: ";
             for (auto rqit : readyq) {
-                cout << "ID: " << rqit->id << " ";
+                cout << rqit->id << " ";
             }
             cout << endl;
 
             // Print contents of inputq
             cout << "Input Queue Contents: ";
             for (auto iqit : inputq) {
-                cout << "ID: " << iqit->id << " ";
+                cout << iqit->id << " ";
             }
             cout << endl;
 
             // Print contents of outputq
             cout << "Output Queue Contents: ";
             for (auto oqit : outputq) {
-                cout << "ID: " << oqit->id << " ";
+                cout << oqit->id << " ";
             }
-            cout << endl;
+            cout << endl << endl;
 
 
         }
