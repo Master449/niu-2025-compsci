@@ -33,6 +33,7 @@ class Process {
         pair<int, int> io_timer;
         pair<int, int> io_total;
         pair<int, int> io_burst_count;
+        int idle_time;
 
     Process() {
         name = "";
@@ -42,6 +43,7 @@ class Process {
         cpu_timer = 0;
         cpu_total = 0;
         cpu_burst_count = 0;
+        idle_time = 0;
     }
         
 
@@ -65,6 +67,15 @@ class Process {
                   << "I/O Timer:   " << "(" << io_timer.first << "," << io_timer.second << ")" << std::endl
                   << "I/O Total:   " << "(" << io_total.first << "," << io_total.second << ")" << std::endl
                   << "I/O Bursts:  " << "(" << io_burst_count.first << "," << io_burst_count.second << ")" << std::endl;
+    }
+    
+    void terminate() {
+        std::cout << "Process " << name << " (#" << id << ") has terminated, goodbye" << std::endl
+                  << "CPU Bursts:  " << cpu_burst_count << std::endl
+                  << "I/O Bursts:  " << "(" << io_burst_count.first << "ms input, " << io_burst_count.second << "ms output)" << std::endl;
+                  << "CPU Total:   " << cpu_total << std::endl
+                  << "I/O Total:   " << "(" << io_total.first << "ms input, " << io_total.second << "ms output)" << std::endl
+                  << "Total Idle:  " << idle_time << "ms" << endl;
     }
 };
 

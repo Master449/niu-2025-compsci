@@ -1,3 +1,16 @@
+/********************************************************************
+CSCI 490 - Assignment 4 - Semester Spring 2025
+
+Programmer: David Flowers II
+   Section: 1
+        TA: Keerthi Kalyan Botu
+  Date Due: 03/25/2025
+
+   Purpose: To create a program that simulates CPU scheduling in
+            an Operating System. FCFS is required, but RR can
+            be done for extra credit.
+
+*********************************************************************/
 #include <iostream>
 #include <string>
 #include <sstream>
@@ -32,7 +45,7 @@ int main(int argc, char *argv[]) {
     string input_path = argv[1];
     int process_id = 100;
     std::ifstream input_file(input_path);
-    deque<Process> entryq, readyq, inputq, outputq;
+    deque<Process*> entryq, readyq, inputq, outputq;
     vector<string> temp_process;
 
     // Read in the input file
@@ -43,18 +56,18 @@ int main(int argc, char *argv[]) {
 
         // Spin up some temporary variables, and a new Process class
         string temp, type, burst;
-        Process tmp_process;
+        Process* tmp_process = new Process();
         stringstream fl(process_name_line);
         vector<pair<char, int>> temp_history;
 
         // Process the name and arrival time, assigning it
         // to the newly created class
         fl >> temp;
-        tmp_process.name = temp;
+        tmp_process->name = temp;
         fl >> temp;
         
-        tmp_process.arrival_time = stoi(temp);
-        tmp_process.id = process_id;
+        tmp_process->arrival_time = stoi(temp);
+        tmp_process->id = process_id;
 
         // Grab the next line, which will be the history of the process
         getline(input_file, process_stat_line);
@@ -66,7 +79,7 @@ int main(int argc, char *argv[]) {
             if (type == "N" && burst == "0") 
                 break;
             // Push them onto the history
-            tmp_process.history.push_back(std::make_pair(type[0], stoi(burst)));
+            tmp_process->history.push_back(std::make_pair(type[0], stoi(burst)));
         }
         
         // Put process onto the entry queue, and increment the process id
@@ -77,16 +90,16 @@ int main(int argc, char *argv[]) {
     // Done reading and processing
     input_file.close();
 
-    for (auto it : entryq) {
-        cout << it.arrival_time << " ";
-    }
-
     //
     // Main Scheduling Loop
     //
-    int timer = 0;
-    int total_proccess = 0;
+    int timer, total_process, cpu_idle_time;
+    Process* active_process;
     bool active_flag, input_flag, output_flag;
+
+    timer = 0;
+    total_process = 0;
+    cpu_idle_time = 0;
 
     // quick reference
     // deque has methods
@@ -96,18 +109,34 @@ int main(int argc, char *argv[]) {
          // size
 
     do {
-        // Timekeeping
-        // loop through entryq
-            // If timer > arrival time && total processes < IN_USE
-                // push process onto the readyq
-        
+        // only loop through entryq if theres space for more
+        if (total_process < IN_USE) {
+            // entry queue iterator
+            for (auto eqit : entryq) {
+                if (timer > eqit->arrival_time) {
+                    readyq.push_back(eqit);
+                    entryq.pop_front();
+                    total_process++;
+                }
+            }
+        }
+
         // -------------- Active Process -------------------
-        // if (active_flag)
-            // it could end CPU burst to I or O
-            // it could end a CPU burst to terminate
-        // else if(readyq empty && entryq empty && total processes < IN_USE)
-            // increment idle time -- no active process
-        // else
+        if (active_flag) {
+            active_process->cpu_timer--;
+            active_process->cpu_total++;
+            
+            // If the burst has ended
+            if (active_process->cpu_timer == 0) {
+                // Check to see if there is more to do after this
+                if (active_process->history_index == (active_process->history.size() - 1))
+                // it could end CPU burst to I or O
+                // it could end a CPU burst to terminate
+            }
+        } else if(readyq.empty() && entryq.empty() && total_process < IN_USE) {
+            // no active process
+            //cpu_idle_time++;
+        } else {
             // obtain from readyq
             // if readyq empty && total processes < IN_USE
                 // if entryq not empty
@@ -115,6 +144,7 @@ int main(int argc, char *argv[]) {
                     // store tmp burst
                     // update active-flag
                     // print if moved to queue
+        // }
 
         // -------------- Input ------------------------
         // If (input_flag)
