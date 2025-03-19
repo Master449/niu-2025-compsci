@@ -28,9 +28,43 @@ using std::pair;
 using std::stoi;
 
 // Constants
-const int MAX_TIME = 50;
+const int MAX_TIME = 500;
 const int IN_USE = 5;
 const int HOW_OFTEN = 25;
+
+/* print_queue_change
+ *    when a process switches queues, print
+ *    Process <id> moved from <from> Queue to the <to> Queue at time <time>
+ *
+ * Args:
+ *   id   - process id that moved
+ *   from - name of origin queue
+ *   to   - name of destination queue
+ *   time - time this occured
+ ****************************************************************/
+void print_queue_change(int id, string from, string to, int time) {
+    cout << "Process " << id << " has moved from the " << from << " Queue to the " << to << " Queue at time " << time << endl << endl;
+}
+
+/* dump_queue
+ *    takes a reference to a queue and prints all the process
+ *    IDs that are inside.
+ *
+ * Args
+ *   q    - reference to a queue
+ *   name - name of the queue to print
+ ****************************************************************/
+void dump_queue(deque<Process*>& q, string name) {
+    cout << name << " Queue Contents: ";
+    if (!q.empty()) {
+        for (auto it : q) {
+            cout << it->id << " ";
+        }
+    } else {
+        cout << "(Empty)";
+    }
+    cout << endl;
+}
 
 int main(int argc, char *argv[]) {
     // Need some sort of input, if none provided, exit
@@ -95,152 +129,170 @@ int main(int argc, char *argv[]) {
     //
     int timer = 0, total_process = 0, cpu_idle_time = 0;
     Process* active_process = nullptr;
-    bool active_flag = false, input_flag = false, output_flag = false;
+    Process* input_process = nullptr;
+    Process* output_process = nullptr;
 
-    // quick reference
-    // deque has methods
-         // empty
-         // front - first
-         // back - last
-         // size
+    cout << "Simulation of CPU Scheduling" << endl << endl;
 
     do {
-        // only loop through entryq if theres space for more
-        if (total_process < IN_USE) {
-            // entry queue iterator
-            for (auto eqit : entryq) {
-                if (timer >= eqit->arrival_time) {
-                    cout << "Process " << eqit->name
-                         << " (#" << eqit->id << ")" 
-                         << " has moved: Entry Queue -> Ready Queue" << endl;
-                    readyq.push_back(eqit);
-                    entryq.pop_front();
-                    total_process++;
-                }
-            }
-        }
-
         // -------------- Active Process -------------------
-        if (active_flag) {
-            active_process->cpu_timer--;
-            active_process->cpu_total++;
-            
-            // If the burst has ended
+        if (active_process) {
+            // If the burst has ended, we need to figure where it goes next
             if (active_process->cpu_timer == 0) {
-                // Check to see if there is more to do after this
-                //if (active_process->history_index == (active_process->history.size() - 1))
-                // it could end CPU burst to I or O
-                // it could end a CPU burst to terminate
+                // It could terminate
+                if (active_process->history_index == (int)(active_process->history.size() - 1)) {
+                    active_process->terminate();
+                    total_process--;
+                } else {
+                    // If its not done, figure out which queue is next up
+                    active_process->history_index++;
+                    char next_queue = active_process->history[active_process->history_index].first;
+
+                    if (next_queue == 'I') {
+                        active_process->io_timer.first = active_process->history[active_process->history_index].second;
+                        inputq.push_back(active_process);
+                        print_queue_change(active_process->id, "Active", "Input", timer);
+                    } else if (next_queue == 'O') {
+                        active_process->io_timer.second = active_process->history[active_process->history_index].second;
+                        outputq.push_back(active_process);
+                        print_queue_change(active_process->id, "Active", "Output", timer);
+                    } 
+                }
+                active_process = nullptr;
+            } else {
+                active_process->cpu_timer--;
+                active_process->cpu_total++;
             }
+            
         } else if(readyq.empty() && entryq.empty() && total_process < IN_USE) {
             // no active process, idle time
             cpu_idle_time++;
         } else {
             // if ready is not empty and we have space for process
-            if (!(readyq.empty()) && total_process < IN_USE) {
-                // grab process, update flag, and print the change
+            if ((!(readyq.empty())) && total_process < IN_USE) {
+                // grab process, update queues, and change set timer from history
                 active_process = readyq.front();
                 readyq.pop_front();
-                active_flag = true;
-                cout << "Process " << active_process->name
-                     << " (#" << active_process->id << ")" 
-                     << " has moved: Ready Queue -> Active" << endl;
-            } else if (!(entryq.empty()) && total_process < IN_USE) {
-                // grab process, update flag, and print the change
-                active_process = entryq.front();
-                entryq.pop_front();
-                active_flag = true;
-                cout << "Process " << active_process->name
-                     << " (#" << active_process->id << ")" 
-                     << " has moved: Entry Queue -> Active" << endl;
+                active_process->cpu_timer = active_process->history[active_process->history_index].second;
             }
         }
 
         // -------------- Input ------------------------
-        // If (input_flag)
-            // if tmp-i-burst is 0
+        if (input_process) {
+            input_process->io_timer.first--;
+            input_process->io_total.first++;
+
+            if (input_process->io_timer.first == 0) {
                 // update history index
+                input_process->history_index++;
+                input_process->io_burst_count.first++;
+
                 // move to ready queue
+                readyq.push_back(input_process);
+
                 // print if moved to queue
-        // else
-            // Look for one in the input queue
-            // if found
-                // print its movement change
-                // tmp value to hold its burst
+                print_queue_change(input_process->id, "Ready", "Input", timer);
+
+                // No more active input process
+                input_process = nullptr;
+            }
+        } else {
+            // Look in input queue
+            if (!(inputq.empty())) {
+                input_process = inputq.front();
+                inputq.pop_front();
+            }
+        }
 
         // -------------- Output ---------------
-        // If (output_flag)
-            // if tmp-o-burst is 0
-                // update history index
-                // move to ready queue
-                // print if moved to queue
-        // else
-            // Look for one in the output queue
-            // if found
-                // print its movement change
-                // tmp value to hold its burst
+        if (output_process) {
+            output_process->io_timer.second--;
+            output_process->io_total.second++;
 
+            if (output_process->io_timer.second == 0) {
+                // update history index
+                output_process->history_index++;
+                output_process->io_burst_count.second++;
+
+                // move to ready queue
+                readyq.push_back(output_process);
+
+                // print if moved to queue
+                print_queue_change(output_process->id, "Ready", "Output", timer);
+
+                // No more active output process
+                output_process = nullptr;
+            }
+        } else {
+            // Look in output queue
+            if (!(outputq.empty())) {
+                output_process = outputq.front();
+                outputq.pop_front();
+            }
+        }
         
-        // Timekeeping 2 electric boogaloo
-        if (timer % HOW_OFTEN == 0 && timer != 0) {
-            
-            cout << endl << "--- Summary ---" << endl << endl;
-            cout << "CPU Idle: " << cpu_idle_time << endl;
+        // only loop through entryq if theres space for more
+        if (total_process < IN_USE) {
+            // entry queue iterator
+            for (auto eqit : entryq) {
+                if (timer >= eqit->arrival_time) {
+                    readyq.push_back(eqit);
+                    entryq.pop_front();
+                    print_queue_change(eqit->id, "Entry", "Ready", timer);
+                    total_process++;
+                }
+            }
+        }
+
+
+        if (timer % HOW_OFTEN == 0) {
+
+            cout << endl << "Status at time " << timer << endl;
 
             // Check if active process
-            if (active_flag) {
-                cout << "Active CPU ID: " << active_process->id << endl; 
+            if (active_process) {
+                cout << " Active is " << active_process->id <<  endl; 
             } else {
-                cout << "Active CPU ID: None" << endl;
+                cout << " Active is 0" << endl;
             }
 
             // Check if active input
-            if(input_flag) {
-                cout << "Active Input ID: " << inputq.front()->id << endl; 
+            if(input_process) {
+                cout << "IActive is " << inputq.front()->id << endl; 
             } else {
-                cout << "Active Input ID: None" << endl;
+                cout << "IActive is 0" << endl;
             }
 
             // Check if active output
-            if(output_flag) {
-                cout << "Active Output ID: " << outputq.front()->id << endl; 
+            if(output_process) {
+                cout << "OActive is " << outputq.front()->id << endl; 
             } else {
-                cout << "Active Output ID: None" << endl;
+                cout << "OActive is 0" << endl;
             }
 
-            // Print contents of entryq
-            cout << "Entry Queue Contents: ";
-            for (auto eqit : entryq) {
-                cout << eqit->id << " ";
-            }
-            cout << endl;
-
-            // Print contents of readyq
-            cout << "Ready Queue Contents: ";
-            for (auto rqit : readyq) {
-                cout << rqit->id << " ";
-            }
-            cout << endl;
-
-            // Print contents of inputq
-            cout << "Input Queue Contents: ";
-            for (auto iqit : inputq) {
-                cout << iqit->id << " ";
-            }
-            cout << endl;
-
-            // Print contents of outputq
-            cout << "Output Queue Contents: ";
-            for (auto oqit : outputq) {
-                cout << oqit->id << " ";
-            }
-            cout << endl << endl;
-
-
+            // Dump queues
+            dump_queue(entryq, "Entry");
+            dump_queue(readyq, "Ready");
+            dump_queue(inputq, "Input");
+            dump_queue(outputq, "Output");
         }
+
+        // Check to see if the run is done
+        if (entryq.empty() && readyq.empty() && inputq.empty() && outputq.empty() && total_process == 0) {
+            cout << "The run has ended." << endl
+                 << "The final value of the timer was: " << timer << endl
+                 << "The amount of time spent idle was: " << cpu_idle_time << endl
+                 << "Number of terminated processes: " /*<< term_process_count*/ << endl
+                 << "The average waiting time for all terminated processes was: " /*<< average_term_around_time */<< endl;
+            dump_queue(entryq, "Entry");
+            dump_queue(readyq, "Ready");
+            dump_queue(inputq, "Input");
+            dump_queue(outputq, "Output");
+            return 0;
+        }
+
         timer++;
     } while (timer <= MAX_TIME);
 
-    
     return 0;
 }

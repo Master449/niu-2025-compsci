@@ -49,6 +49,7 @@ class Process {
         pair<int, int> io_total;
         pair<int, int> io_burst_count;
         int idle_time;
+        int end_time;
 
     // Constructor, just so we don't get garbage values we don't want
     Process() {
@@ -60,6 +61,7 @@ class Process {
         cpu_total = 0;
         cpu_burst_count = 0;
         idle_time = 0;
+        end_time = 0;
     }
 
     /* debug_info
@@ -98,13 +100,26 @@ class Process {
     * Takes no args and returns nothing, prints to stdout
     *****************************************************/
     void terminate() {
-        std::cout << "Process " << name << " (#" << id << ") has terminated, goodbye" << std::endl
-                  << "CPU Bursts:  " << cpu_burst_count << std::endl
-                  << "I/O Bursts:  " << "(" << io_burst_count.first << "ms input, " << io_burst_count.second << "ms output)" << std::endl
-                  << "CPU Total:   " << cpu_total << std::endl
-                  << "I/O Total:   " << "(" << io_total.first << "ms input, " << io_total.second << "ms output)" << std::endl
-                  << "Total Idle:  " << idle_time << "ms" << std::endl;
+        std::cout << "Process " << id << " has ended." << std::endl
+                  << "Name              " << name << std::endl
+                  << "Started at time   " << arrival_time << " and ended at time " << end_time << std::endl
+                  << "Total CPU time    " << cpu_total << " in " << cpu_burst_count << " bursts" << std::endl
+                  << "Total Input Time  " << io_total.first << " in " << io_burst_count.first << " bursts" << std::endl
+                  << "Total Output Time " << io_total.second << " in " << io_burst_count.second << " bursts" << std::endl
+                  << "Time waiting      " << idle_time << std::endl;
     }
 };
+
+/* print_queue_change
+ *    when a process switches queues, print
+ *    Process <id> moved from <from> Queue to the <to> Queue at time <time>
+ ****************************************************************/
+void print_queue_change(int id, string from, string to, int time);
+
+/* dump_queue
+ *    takes a reference to a queue and prints all the process
+ *    IDs that are inside.
+ ****************************************************************/
+void dump_queue(deque<Process*>& q, string name);
 
 #endif // Z1942130_PROJECT4_H
