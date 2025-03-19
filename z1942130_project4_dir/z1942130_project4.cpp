@@ -32,6 +32,13 @@ const int MAX_TIME = 500;
 const int IN_USE = 5;
 const int HOW_OFTEN = 25;
 
+// Globals
+// The queues are used in a ton of functions
+// the further I got, the more it became apparent
+// that they should be global, so I don't need to 
+// pass all of them into functions all the time
+deque<Process*> entryq, readyq, inputq, outputq;
+
 /* print_queue_change
  *    when a process switches queues, print
  *    Process <id> moved from <from> Queue to the <to> Queue at time <time>
@@ -66,6 +73,47 @@ void dump_queue(deque<Process*>& q, string name) {
     cout << endl;
 }
 
+void dump_all_queues() {
+    dump_queue(entryq, "Entry");
+    dump_queue(readyq, "Ready"); 
+    dump_queue(inputq, "Input");
+    dump_queue(outputq, "Output");
+}
+
+void handle_io(Process* &io, string type, int timestamp) {
+    auto& timer = (type == "Input") ? io->io_timer.first : io->io_timer.second;
+    auto& total = (type == "Input") ? io->io_total.first : io->io_total.second;
+    auto& burst_count = (type == "Input") ? io->io_burst_count.first : io->io_burst_count.second;
+    auto& queue = (type == "Input") ? inputq : outputq;
+
+    if (io) {
+        timer--;
+        total++;
+
+        if (timer == 0) {
+            // update history index
+            io->history_index++;
+            burst_count++;
+
+            // move to ready queue
+            readyq.push_back(io);
+
+            // print if moved to queue
+            print_queue_change(io->id, type, "Ready", timestamp);
+
+            // No more active io process
+            io = nullptr;
+        }
+
+    } else {
+        // Look in input queue
+        if (!(queue.empty())) {
+            io = queue.front();
+            queue.pop_front();
+        }
+    }
+}
+
 int main(int argc, char *argv[]) {
     // Need some sort of input, if none provided, exit
     if (argc != 2) {
@@ -79,7 +127,6 @@ int main(int argc, char *argv[]) {
     string input_path = argv[1];
     int process_id = 100;
     std::ifstream input_file(input_path);
-    deque<Process*> entryq, readyq, inputq, outputq;
     vector<string> temp_process;
 
     // Read in the input file
@@ -100,6 +147,8 @@ int main(int argc, char *argv[]) {
         tmp_process->name = temp;
         fl >> temp;
         
+        process_id++;
+        
         tmp_process->arrival_time = stoi(temp);
         tmp_process->id = process_id;
 
@@ -118,7 +167,6 @@ int main(int argc, char *argv[]) {
         
         // Put process onto the entry queue, and increment the process id
         entryq.push_back(tmp_process);
-        process_id++;
     }
 
     // Done reading and processing
@@ -177,59 +225,10 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        // -------------- Input ------------------------
-        if (input_process) {
-            input_process->io_timer.first--;
-            input_process->io_total.first++;
+        // -------------- Handle I/O ------------------------
+        handle_io(input_process, "Input", timer);
+        handle_io(output_process, "Output", timer);
 
-            if (input_process->io_timer.first == 0) {
-                // update history index
-                input_process->history_index++;
-                input_process->io_burst_count.first++;
-
-                // move to ready queue
-                readyq.push_back(input_process);
-
-                // print if moved to queue
-                print_queue_change(input_process->id, "Ready", "Input", timer);
-
-                // No more active input process
-                input_process = nullptr;
-            }
-        } else {
-            // Look in input queue
-            if (!(inputq.empty())) {
-                input_process = inputq.front();
-                inputq.pop_front();
-            }
-        }
-
-        // -------------- Output ---------------
-        if (output_process) {
-            output_process->io_timer.second--;
-            output_process->io_total.second++;
-
-            if (output_process->io_timer.second == 0) {
-                // update history index
-                output_process->history_index++;
-                output_process->io_burst_count.second++;
-
-                // move to ready queue
-                readyq.push_back(output_process);
-
-                // print if moved to queue
-                print_queue_change(output_process->id, "Ready", "Output", timer);
-
-                // No more active output process
-                output_process = nullptr;
-            }
-        } else {
-            // Look in output queue
-            if (!(outputq.empty())) {
-                output_process = outputq.front();
-                outputq.pop_front();
-            }
-        }
         
         // only loop through entryq if theres space for more
         if (total_process < IN_USE) {
@@ -284,10 +283,7 @@ int main(int argc, char *argv[]) {
                  << "The amount of time spent idle was: " << cpu_idle_time << endl
                  << "Number of terminated processes: " /*<< term_process_count*/ << endl
                  << "The average waiting time for all terminated processes was: " /*<< average_term_around_time */<< endl;
-            dump_queue(entryq, "Entry");
-            dump_queue(readyq, "Ready");
-            dump_queue(inputq, "Input");
-            dump_queue(outputq, "Output");
+            dump_all_queues();
             return 0;
         }
 
