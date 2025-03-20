@@ -97,28 +97,6 @@ void update_work_status(Process* &proc) {
             cout << "Process " << proc->id << " has moved from the Ready Queue to the Output Queue at time " << timer << endl << endl;
             current_work = 'O';
         }*/
-        readyq.push_back(proc);
-    }
-}
-
-/* d
- *    t
- *
- * Args
- *
- * Returns
- * ****************************************/
-void handle_io(Process* &proc, string type) {
-    auto& io_time_remaining = (type == "Input") ? proc->i_timer : proc->o_timer;
-    auto& total = (type == "Input") ? proc->i_total : proc->o_total;
-    auto& burst_count = (type == "Input") ? proc->i_burst_count : proc->o_burst_count;
-
-    io_time_remaining--;
-    total++;
-
-    if (io_time_remaining == 0) {
-        burst_count++;
-        update_work_status(proc);
     }
 }
 
@@ -150,16 +128,19 @@ void load_process(char type) {
     if (!(i_active) && !(o_active) && type == 'A') {
         active = readyq.front();
         readyq.pop_front();
+        active->cpu_timer = active->history[active->history_index].second;
         return;
     }
     if (!(active) && !(o_active) && type == 'I') {
         i_active = readyq.front();
         readyq.pop_front();
+        i_active->cpu_timer = i_active->history[i_active->history_index].second;
         return;
     }
     if (!active && !i_active && type == 'O') {
         o_active = readyq.front();
         readyq.pop_front();
+        o_active->cpu_timer = o_active->history[o_active->history_index].second;
         return;
     } 
     //cout << "load_process doesnt work" << endl;
@@ -193,7 +174,7 @@ void processIActive() {
     if (i_active == nullptr) {
         load_process('I');
     }
-        
+    
     if (i_active != nullptr) {
         i_active->i_total++;
         i_active->i_timer--;
@@ -205,10 +186,9 @@ void processIActive() {
             update_work_status(i_active);
             //active = nullptr;
         }
-        //run it (increase the counters).
-        //check if it is the end of CPU burst; if yes, increase counter, decide where to put the process next.
     } else if (i_active == nullptr) {
         cpu_idle_time++;
+        // TODO: THIS MIGHT NEED TO BE REMOVED FOR BOTH I/O
     }
 }
 
@@ -228,8 +208,6 @@ void processOActive() {
             update_work_status(o_active);
             //active = nullptr;
         }
-        //run it (increase the counters).
-        //check if it is the end of CPU burst; if yes, increase counter, decide where to put the process next.
     } else if (o_active == nullptr) {
         cpu_idle_time++;
     }
@@ -313,6 +291,15 @@ int main(int argc, char *argv[]) {
 
             // Dump queues
             dump_all_queues();
+        }
+
+        if (timer % 5 == 0) {
+            if (active)
+                active->debug_info();
+            if (i_active)
+                i_active->debug_info();
+            if (o_active)
+                o_active->debug_info();
         }
         
         //if (active == nullptr && i_active && nullptr && o_active == nullptr) {
