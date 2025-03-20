@@ -36,10 +36,6 @@ const int HOW_OFTEN = 25;
 deque<Process*> entryq, readyq, inputq, outputq;
 int timer = 0, total_process = 0;
 char current_work;
-int cpu_idle_time = 0;
-Process* active = nullptr;
-Process* i_active = nullptr;
-Process* o_active = nullptr;
 
 /* dump_queue
  *    takes a reference to a queue and prints all the process
@@ -88,7 +84,7 @@ void update_work_status(Process* &proc) {
         total_process--;
     } else {
         proc->history_index++;
-        /*if (proc->history[proc->history_index].first == 'C') {
+        if (proc->history[proc->history_index].first == 'C') {
             current_work = 'C';
         } else if (proc->history[proc->history_index].first == 'I') {
             cout << "Process " << proc->id << " has moved from the Ready Queue to the Input Queue at time " << timer << endl << endl;
@@ -96,7 +92,7 @@ void update_work_status(Process* &proc) {
         } else if (proc->history[proc->history_index].first == 'O') {
             cout << "Process " << proc->id << " has moved from the Ready Queue to the Output Queue at time " << timer << endl << endl;
             current_work = 'O';
-        }*/
+        }
         readyq.push_back(proc);
     }
 }
@@ -129,8 +125,7 @@ void handle_io(Process* &proc, string type) {
  *
  * Returns
  * ****************************************/
-void check_num_process() {
-    total_process = readyq.size() + inputq.size() + outputq.size() + (active ? 1 : 0) + (i_active ? 1 : 0) + (o_active ? 1: 0);
+void check_num_process(Process* &proc) {
     int slots = IN_USE - total_process;
     
     if (slots > 0 && !entryq.empty()) {
@@ -143,95 +138,6 @@ void check_num_process() {
             total_process++;
             cout << "Process " << readyq.back()->id << " has moved from the Entry Queue into the Ready Queue at time " << timer << endl << endl;
         }
-    }
-}
-
-void load_process(char type) {
-    if (!(i_active) && !(o_active) && type == 'A') {
-        active = readyq.front();
-        readyq.pop_front();
-        return;
-    }
-    if (!(active) && !(o_active) && type == 'I') {
-        i_active = readyq.front();
-        readyq.pop_front();
-        return;
-    }
-    if (!active && !i_active && type == 'O') {
-        o_active = readyq.front();
-        readyq.pop_front();
-        return;
-    } 
-    //cout << "load_process doesnt work" << endl;
-    //exit(0);
-}
-
-void processActive() {
-    if (active == nullptr) {
-        load_process('A');
-    }
-        
-    if (active != nullptr) {
-        active->cpu_total++;
-        active->cpu_timer--;
-                
-        if (active->cpu_timer == 0) {
-            //active_process->history_index++;
-            active->cpu_burst_count++;
-            //update_work_status(active_process);
-            update_work_status(active);
-            //active = nullptr;
-        }
-        //run it (increase the counters).
-        //check if it is the end of CPU burst; if yes, increase counter, decide where to put the process next.
-    } else if (active == nullptr) {
-        cpu_idle_time++;
-    }
-}
-
-void processIActive() {
-    if (i_active == nullptr) {
-        load_process('I');
-    }
-        
-    if (i_active != nullptr) {
-        i_active->i_total++;
-        i_active->i_timer--;
-                
-        if (i_active->i_timer == 0) {
-            //active_process->history_index++;
-            i_active->i_burst_count++;
-            //update_work_status(active_process);
-            update_work_status(i_active);
-            //active = nullptr;
-        }
-        //run it (increase the counters).
-        //check if it is the end of CPU burst; if yes, increase counter, decide where to put the process next.
-    } else if (i_active == nullptr) {
-        cpu_idle_time++;
-    }
-}
-
-void processOActive() {
-    if (o_active == nullptr) {
-        load_process('O');
-    } // try to load the active process. (active may still be NULL after this.)
-        
-    if (o_active != nullptr) {
-        o_active->o_total++;
-        o_active->o_timer--;
-                
-        if (o_active->o_timer == 0) {
-            //active_process->history_index++;
-            o_active->o_burst_count++;
-            //update_work_status(active_process);
-            update_work_status(o_active);
-            //active = nullptr;
-        }
-        //run it (increase the counters).
-        //check if it is the end of CPU burst; if yes, increase counter, decide where to put the process next.
-    } else if (o_active == nullptr) {
-        cpu_idle_time++;
     }
 }
 
@@ -296,8 +202,11 @@ int main(int argc, char *argv[]) {
     //
     // Main Scheduling Loop
     //
+    int cpu_idle_time = 0;
+    Process* active_process = nullptr;
 
     cout << "Simulation of CPU Scheduling" << endl << endl;
+
     
     while (timer <= MAX_TIME) {
         if (timer % HOW_OFTEN == 0 && timer != 0) {
@@ -305,26 +214,17 @@ int main(int argc, char *argv[]) {
             cout << endl << "Status at time " << timer << endl;
 
             // Check if active process
-            //if (active_process) {
-            //    cout << "Active is " << active_process->id <<  endl; 
-            //} else {
-            //    cout << "Active is 0" << endl;
-            //}
+            if (active_process) {
+                cout << "Active is " << active_process->id <<  endl; 
+            } else {
+                cout << "Active is 0" << endl;
+            }
 
             // Dump queues
             dump_all_queues();
         }
-        
-        //if (active == nullptr && i_active && nullptr && o_active == nullptr) {
-            if (total_process < IN_USE)
-                check_num_process();
-        //}
-        processActive();
-        processIActive();
-        processOActive();
-        timer++;
 
-        /*if (active_process == nullptr) {
+        if (active_process == nullptr) {
             check_num_process(active_process);
             active_process = readyq.front();
             readyq.pop_front();
@@ -371,7 +271,7 @@ int main(int argc, char *argv[]) {
                 default:
                     continue;
             }
-        }*/
+        }
 
 
         // Check to see if the run is done
