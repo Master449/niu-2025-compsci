@@ -110,7 +110,7 @@ class Process {
     *
     * Takes no args and returns nothing, prints to stdout
     *****************************************************/
-    void terminate() {
+    void print_terminate() {
         std::cout << "Process " << id << " has ended." << std::endl
                   << "Name              " << name << std::endl
                   << "Started at time   " << arrival_time << " and ended at time " << end_time << std::endl

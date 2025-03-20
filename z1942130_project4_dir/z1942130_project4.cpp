@@ -77,7 +77,8 @@ void dump_all_queues() {
 void update_work_status(Process* &proc) {
     if (proc->history_index == (int)(proc->history.size() - 1)) {
         proc->end_time = timer;
-        proc->terminate();
+        proc->print_terminate();
+        proc = nullptr;
         total_process--;
     } else {
         proc->history_index++;
@@ -90,6 +91,7 @@ void update_work_status(Process* &proc) {
             cout << "Process " << proc->id << " has moved from the Ready Queue to the Output Queue at time " << timer << endl << endl;
             current_work = 'O';
         }
+        readyq.push_back(proc);
     }
 }
 
@@ -103,7 +105,6 @@ void handle_io(Process* &proc, string type) {
 
     if (io_time_remaining == 0) {
         burst_count++;
-        readyq.push_back(proc);
         update_work_status(proc);
     }
 }
@@ -213,7 +214,6 @@ int main(int argc, char *argv[]) {
                         //active_process->history_index++;
                         active_process->cpu_burst_count++;
                         //update_work_status(active_process);
-                        readyq.push_back(active_process);
                         update_work_status(active_process);
                         active_process = nullptr;
                     }
