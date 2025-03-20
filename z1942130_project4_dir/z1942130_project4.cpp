@@ -174,8 +174,8 @@ int main(int argc, char *argv[]) {
 
     cout << "Simulation of CPU Scheduling" << endl << endl;
 
-    do {
-
+    
+    while (timer <= MAX_TIME) {
         if (active_process == nullptr) {
             // get new process from stack
             if (total_process < IN_USE && !(entryq.empty())) {
@@ -189,19 +189,19 @@ int main(int argc, char *argv[]) {
                     }
                 }
             } 
-                active_process = readyq.front();
-                readyq.pop_front();
+            active_process = readyq.front();
+            readyq.pop_front();
 
-                if (active_process->history[active_process->history_index].first == 'C') {
-                    active_process->cpu_timer = active_process->history[active_process->history_index].second;
-                    current_work = 'C';
-                } else if (active_process->history[active_process->history_index].first == 'I') {
-                    active_process->i_timer = active_process->history[active_process->history_index].second;
-                    current_work = 'I';
-                } else if (active_process->history[active_process->history_index].first == 'O') {
-                    active_process->o_timer = active_process->history[active_process->history_index].second;
-                    current_work = 'O';
-                }
+            if (active_process->history[active_process->history_index].first == 'C') {
+                active_process->cpu_timer = active_process->history[active_process->history_index].second;
+                current_work = 'C';
+            } else if (active_process->history[active_process->history_index].first == 'I') {
+                active_process->i_timer = active_process->history[active_process->history_index].second;
+                current_work = 'I';
+            } else if (active_process->history[active_process->history_index].first == 'O') {
+                active_process->o_timer = active_process->history[active_process->history_index].second;
+                current_work = 'O';
+            }
             
         } else {
             switch(current_work) {
@@ -262,9 +262,11 @@ int main(int argc, char *argv[]) {
             dump_all_queues();
             return 0;
         }
+        //if (active_process)
+        //    active_process->debug_info();
 
         timer++;
-    } while (timer <= MAX_TIME);
+    }
 
     return 0;
 }
