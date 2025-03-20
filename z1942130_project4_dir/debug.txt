@@ -1,0 +1,4 @@
+STARWAR  0
+C   1   I   4   C   1   O   4   N   0   N   0   N   0   N   0   N   0   N   0   
+STOPHERE  0
+N   0   N   0   N   0   N   0   N   0   N   0   N   0   N   0   N   0   N   0   

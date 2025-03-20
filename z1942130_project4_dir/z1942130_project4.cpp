@@ -33,11 +33,9 @@ const int IN_USE = 5;
 const int HOW_OFTEN = 25;
 
 // Globals
-// The queues are used in a ton of functions
-// the further I got, the more it became apparent
-// that they should be global, so I don't need to 
-// pass all of them into functions all the time
 deque<Process*> entryq, readyq, inputq, outputq;
+int timer = 0, total_process = 0;
+char current_work;
 
 /* print_queue_change
  *    when a process switches queues, print
@@ -47,11 +45,7 @@ deque<Process*> entryq, readyq, inputq, outputq;
  *   id   - process id that moved
  *   from - name of origin queue
  *   to   - name of destination queue
- *   time - time this occured
  ****************************************************************/
-void print_queue_change(int id, string from, string to, int time) {
-    cout << "Process " << id << " has moved from the " << from << " Queue to the " << to << " Queue at time " << time << endl << endl;
-}
 
 /* dump_queue
  *    takes a reference to a queue and prints all the process
@@ -80,37 +74,37 @@ void dump_all_queues() {
     dump_queue(outputq, "Output");
 }
 
-void handle_io(Process* &io, string type, int timestamp) {
-    auto& timer = (type == "Input") ? io->io_timer.first : io->io_timer.second;
-    auto& total = (type == "Input") ? io->io_total.first : io->io_total.second;
-    auto& burst_count = (type == "Input") ? io->io_burst_count.first : io->io_burst_count.second;
-    auto& queue = (type == "Input") ? inputq : outputq;
-
-    if (io) {
-        timer--;
-        total++;
-
-        if (timer == 0) {
-            // update history index
-            io->history_index++;
-            burst_count++;
-
-            // move to ready queue
-            readyq.push_back(io);
-
-            // print if moved to queue
-            print_queue_change(io->id, type, "Ready", timestamp);
-
-            // No more active io process
-            io = nullptr;
-        }
-
+void update_work_status(Process* &proc) {
+    if (proc->history_index == (int)(proc->history.size() - 1)) {
+        proc->end_time = timer;
+        proc->terminate();
+        total_process--;
     } else {
-        // Look in input queue
-        if (!(queue.empty())) {
-            io = queue.front();
-            queue.pop_front();
+        proc->history_index++;
+        if (proc->history[proc->history_index].first == 'C') {
+            current_work = 'C';
+        } else if (proc->history[proc->history_index].first == 'I') {
+            cout << "Process " << proc->id << " has moved from the Ready Queue to the Input Queue at time " << timer << endl << endl;
+            current_work = 'I';
+        } else if (proc->history[proc->history_index].first == 'O') {
+            cout << "Process " << proc->id << " has moved from the Ready Queue to the Output Queue at time " << timer << endl << endl;
+            current_work = 'O';
         }
+    }
+}
+
+void handle_io(Process* &proc, string type) {
+    auto& io_time_remaining = (type == "Input") ? proc->i_timer : proc->o_timer;
+    auto& total = (type == "Input") ? proc->i_total : proc->o_total;
+    auto& burst_count = (type == "Input") ? proc->i_burst_count : proc->o_burst_count;
+
+    io_time_remaining--;
+    total++;
+
+    if (io_time_remaining == 0) {
+        burst_count++;
+        readyq.push_back(proc);
+        update_work_status(proc);
     }
 }
 
@@ -175,74 +169,73 @@ int main(int argc, char *argv[]) {
     //
     // Main Scheduling Loop
     //
-    int timer = 0, total_process = 0, cpu_idle_time = 0;
+    int cpu_idle_time = 0;
     Process* active_process = nullptr;
-    Process* input_process = nullptr;
-    Process* output_process = nullptr;
 
     cout << "Simulation of CPU Scheduling" << endl << endl;
 
     do {
-        // -------------- Active Process -------------------
-        if (active_process) {
-            // If the burst has ended, we need to figure where it goes next
-            if (active_process->cpu_timer == 0) {
-                // It could terminate
-                if (active_process->history_index == (int)(active_process->history.size() - 1)) {
-                    active_process->terminate();
-                    total_process--;
-                } else {
-                    // If its not done, figure out which queue is next up
-                    active_process->history_index++;
-                    char next_queue = active_process->history[active_process->history_index].first;
 
-                    if (next_queue == 'I') {
-                        active_process->io_timer.first = active_process->history[active_process->history_index].second;
-                        inputq.push_back(active_process);
-                        print_queue_change(active_process->id, "Active", "Input", timer);
-                    } else if (next_queue == 'O') {
-                        active_process->io_timer.second = active_process->history[active_process->history_index].second;
-                        outputq.push_back(active_process);
-                        print_queue_change(active_process->id, "Active", "Output", timer);
-                    } 
+        if (active_process == nullptr) {
+            // get new process from stack
+            if (total_process < IN_USE && !(entryq.empty())) {
+                // entry queue iterator
+                for (auto eqit : entryq) {
+                    if (timer >= eqit->arrival_time) {
+                        readyq.push_back(eqit);
+                        entryq.pop_front();
+                        cout << "Process " << eqit->id << " has moved to the Ready Queue at time " << timer << endl << endl;
+                        total_process++;
+                    }
                 }
-                active_process = nullptr;
-            } else {
-                active_process->cpu_timer--;
-                active_process->cpu_total++;
-            }
-            
-        } else if(readyq.empty() && entryq.empty() && total_process < IN_USE) {
-            // no active process, idle time
-            cpu_idle_time++;
-        } else {
-            // if ready is not empty and we have space for process
-            if ((!(readyq.empty())) && total_process < IN_USE) {
-                // grab process, update queues, and change set timer from history
+            } 
                 active_process = readyq.front();
                 readyq.pop_front();
-                active_process->cpu_timer = active_process->history[active_process->history_index].second;
-            }
-        }
 
-        // -------------- Handle I/O ------------------------
-        handle_io(input_process, "Input", timer);
-        handle_io(output_process, "Output", timer);
-
-        
-        // only loop through entryq if theres space for more
-        if (total_process < IN_USE) {
-            // entry queue iterator
-            for (auto eqit : entryq) {
-                if (timer >= eqit->arrival_time) {
-                    readyq.push_back(eqit);
-                    entryq.pop_front();
-                    print_queue_change(eqit->id, "Entry", "Ready", timer);
-                    total_process++;
+                if (active_process->history[active_process->history_index].first == 'C') {
+                    active_process->cpu_timer = active_process->history[active_process->history_index].second;
+                    current_work = 'C';
+                } else if (active_process->history[active_process->history_index].first == 'I') {
+                    active_process->i_timer = active_process->history[active_process->history_index].second;
+                    current_work = 'I';
+                } else if (active_process->history[active_process->history_index].first == 'O') {
+                    active_process->o_timer = active_process->history[active_process->history_index].second;
+                    current_work = 'O';
                 }
+            
+        } else {
+            switch(current_work) {
+                case 'C':
+                    active_process->cpu_total++;
+                    active_process->cpu_timer--;
+                
+                    if (active_process->cpu_timer == 0) {
+                        //active_process->history_index++;
+                        active_process->cpu_burst_count++;
+                        //update_work_status(active_process);
+                        readyq.push_back(active_process);
+                        update_work_status(active_process);
+                        active_process = nullptr;
+                    }
+                    break;
+
+                case 'I':
+                    handle_io(active_process, "Input");
+                    cpu_idle_time++;
+                    if (active_process->i_timer == 0) {
+                        active_process = nullptr;
+                    }
+                    break;
+
+                case 'O':
+                    handle_io(active_process, "Output");
+                    cpu_idle_time++;
+                    if (active_process->o_timer == 0) {
+                        active_process = nullptr;
+                    }
+                    break;
             }
         }
-
 
         if (timer % HOW_OFTEN == 0) {
 
@@ -250,30 +243,13 @@ int main(int argc, char *argv[]) {
 
             // Check if active process
             if (active_process) {
-                cout << " Active is " << active_process->id <<  endl; 
+                cout << "Active is " << active_process->id <<  endl; 
             } else {
-                cout << " Active is 0" << endl;
-            }
-
-            // Check if active input
-            if(input_process) {
-                cout << "IActive is " << inputq.front()->id << endl; 
-            } else {
-                cout << "IActive is 0" << endl;
-            }
-
-            // Check if active output
-            if(output_process) {
-                cout << "OActive is " << outputq.front()->id << endl; 
-            } else {
-                cout << "OActive is 0" << endl;
+                cout << "Active is 0" << endl;
             }
 
             // Dump queues
-            dump_queue(entryq, "Entry");
-            dump_queue(readyq, "Ready");
-            dump_queue(inputq, "Input");
-            dump_queue(outputq, "Output");
+            dump_all_queues();
         }
 
         // Check to see if the run is done

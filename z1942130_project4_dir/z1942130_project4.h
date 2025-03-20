@@ -45,11 +45,15 @@ class Process {
         int cpu_timer;
         int cpu_total;
         int cpu_burst_count;
-        pair<int, int> io_timer;
-        pair<int, int> io_total;
-        pair<int, int> io_burst_count;
+        int i_timer;
+        int i_total;
+        int o_timer;
+        int o_total;
+        int i_burst_count;
+        int o_burst_count;
         int idle_time;
         int end_time;
+        int turnaround_time;
 
     // Constructor, just so we don't get garbage values we don't want
     Process() {
@@ -60,8 +64,15 @@ class Process {
         cpu_timer = 0;
         cpu_total = 0;
         cpu_burst_count = 0;
+        i_timer = 0;
+        i_total = 0;
+        i_burst_count = 0;
+        o_timer = 0;
+        o_total = 0;
+        o_burst_count = 0;
         idle_time = 0;
         end_time = 0;
+        turnaround_time = 0;
     }
 
     /* debug_info
@@ -88,9 +99,9 @@ class Process {
                   << "CPU Timer:   " << cpu_timer << std::endl
                   << "CPU Total:   " << cpu_total << std::endl
                   << "CPU Bursts:  " << cpu_burst_count << std::endl
-                  << "I/O Timer:   " << "(" << io_timer.first << "," << io_timer.second << ")" << std::endl
-                  << "I/O Total:   " << "(" << io_total.first << "," << io_total.second << ")" << std::endl
-                  << "I/O Bursts:  " << "(" << io_burst_count.first << "," << io_burst_count.second << ")" << std::endl;
+                  << "I/O Timer:   " << "(" << i_timer << "," << o_timer << ")" << std::endl
+                  << "I/O Total:   " << "(" << i_total << "," << o_total << ")" << std::endl
+                  << "I/O Bursts:  " << "(" << i_burst_count << "," << o_burst_count << ")" << std::endl;
     }
     
     /* terminate
@@ -104,17 +115,11 @@ class Process {
                   << "Name              " << name << std::endl
                   << "Started at time   " << arrival_time << " and ended at time " << end_time << std::endl
                   << "Total CPU time    " << cpu_total << " in " << cpu_burst_count << " bursts" << std::endl
-                  << "Total Input Time  " << io_total.first << " in " << io_burst_count.first << " bursts" << std::endl
-                  << "Total Output Time " << io_total.second << " in " << io_burst_count.second << " bursts" << std::endl
+                  << "Total Input Time  " << i_total << " in " << i_burst_count << " bursts" << std::endl
+                  << "Total Output Time " << o_total << " in " << o_burst_count << " bursts" << std::endl
                   << "Time waiting      " << idle_time << std::endl;
     }
 };
-
-/* print_queue_change
- *    when a process switches queues, print
- *    Process <id> moved from <from> Queue to the <to> Queue at time <time>
- ****************************************************************/
-void print_queue_change(int id, string from, string to, int time);
 
 /* dump_queue
  *    takes a reference to a queue and prints all the process

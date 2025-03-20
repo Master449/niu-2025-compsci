@@ -15,5 +15,8 @@ clean:
 zip: clean
 	cd ..; tar -cvvf $(TARGET).tar $(CURRENT_DIR); cd $(CURRENT_DIR); mv ../$(TARGET).tar .
 
+build:
+	make && ./$(TARGET) tiny.txt
+
 .PHONY: clean
 
