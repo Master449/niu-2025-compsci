@@ -44,7 +44,7 @@ Process* o_active = nullptr;
 
 /* dump_queue
  *    takes a reference to a queue and prints all the process
- *    IDs that are inside.
+ *    IDs that are inside. Mainly for the summaries.
  *
  * Args
  *   q    - reference to a queue
@@ -52,10 +52,13 @@ Process* o_active = nullptr;
  ****************************************************************/
 void dump_queue(deque<Process*>& q, string name) {
     cout << name << " Queue Contents: ";
+
+    // If were not empty, print contens
     if (!q.empty()) {
         for (auto it : q) {
             cout << it->id << " ";
         }
+    // Otherwise, print empty
     } else {
         cout << "(Empty)";
     }
@@ -63,7 +66,7 @@ void dump_queue(deque<Process*>& q, string name) {
 }
 
 /* dump_all_queues
- *    Just prints out every queue sequentally
+ *    Just prints out every queue sequentially
  *
  *    No args and no return
  * ****************************************/
@@ -75,21 +78,31 @@ void dump_all_queues() {
 }
 
 /* update_work_status
- *    updates the current work flag
+ *    checks if a process is at the end of its history, and terminates if so.
+ *    if its not, updates the timers for the work to be done, puts it in
+ *    the correct queue for processing, and prints out the change.
  *
  * Args
+ *   proc - reference to process
  *
  * Returns
- * ****************************************/
+ * ******************************************************************************/
 void update_work_status(Process* &proc) {
+    // Check if we are at the end of the processes history
     if (proc->history_index == (int)(proc->history.size() - 1)) {
+        // If so, update the end time and processor counts, print out 
+        // the terminate summary, and make the process nullptr again
         proc->end_time = timer;
         average_wait_time_total += proc->print_terminate();
         proc = nullptr;
+
         total_process--;
         term_process_count++;
     } else {
+        // If we are not the end of the history, increment the index
         proc->history_index++;
+
+        // Check the new history index to see which queue the process needs to be placed in
         if (proc->history[proc->history_index].first == 'I') {
             proc->i_timer = proc->history[proc->history_index].second;
             inputq.push_back(proc);
@@ -133,16 +146,17 @@ void check_num_process() {
 }
 
 void load_process(char type) {
+    // If we were called from process_active()
     if (type == 'C') {
-        //if (readyq.empty()) {
-            //if (total_process < IN_USE)
         check_num_process();
+
         if (!readyq.empty()) {
             active = readyq.front();
             readyq.pop_front();
             active->cpu_timer = active->history[active->history_index].second;
         }
     }
+    // If we were called from process_iactive()
     if (type == 'I') {
         if (!inputq.empty()) {
             i_active = inputq.front();
@@ -150,6 +164,7 @@ void load_process(char type) {
             i_active->i_timer = i_active->history[i_active->history_index].second;
         }
     }
+    // If we were called from process_oactive()
     if (type == 'O') {
         if (!outputq.empty()) {
             o_active = outputq.front();
@@ -160,36 +175,44 @@ void load_process(char type) {
     return;
 }
 
-void processActive() {
+void process_active() {
+    // If no process, see if we can load one
     if (active == nullptr) {
-        //if (readyq.empty()) {
-        //}
-
         load_process('C');
     }
-        
+    
+    // Double check we have a process
     if (active != nullptr) {
+        // Increment cpu total, and decrement work timer
         active->cpu_total++;
         active->cpu_timer--;
-                
+        
+        // If we are at the end of this burst
+        // add it to total, and see where next
         if (active->cpu_timer == 0) {
             active->cpu_burst_count++;
             update_work_status(active);
         }
     } else {
+        // If not, we idle
         cpu_idle_time++;
     }
 }
 
-void processIActive() {
+void process_iactive() {
+    // If no process, see if we can load one
     if (i_active == nullptr) {
         load_process('I');
     }
     
+    // Double check we have a process
     if (i_active != nullptr) {
         i_active->i_total++;
+        // Increment input total, and decrement work timer
         i_active->i_timer--;
                 
+        // If we are at the end of this burst
+        // add it to total, and see where next
         if (i_active->i_timer == 0) {
             i_active->i_burst_count++;
             update_work_status(i_active);
@@ -197,23 +220,25 @@ void processIActive() {
     }
 }
 
-void processOActive() {
+void process_oactive() {
+    // If no process, see if we can load one
     if (o_active == nullptr) {
         load_process('O');
     }
-        
+
+    // Double check we have a process
     if (o_active != nullptr) {
+        // Increment output total, and decrement work timer
         o_active->o_total++;
         o_active->o_timer--;
-                
+
+        // If we are at the end of this burst
+        // add it to total, and see where next
         if (o_active->o_timer == 0) {
             o_active->o_burst_count++;
             update_work_status(o_active);
         }
-        //work_done = true;
-    } //else if (o_active == nullptr) {
-        //cpu_idle_time++;
-    //}
+    }
 }
 
 int main(int argc, char *argv[]) {
@@ -281,7 +306,7 @@ int main(int argc, char *argv[]) {
     cout << "Simulation of CPU Scheduling" << endl << endl;
     
     while (timer <= MAX_TIME) {
-        //work_done = false;
+
         if (timer % HOW_OFTEN == 0 && timer != 0) {
 
             cout << endl << "Status at time " << timer << endl;
@@ -308,9 +333,9 @@ int main(int argc, char *argv[]) {
             dump_all_queues();
         }
 
-        processActive();
-        processIActive();
-        processOActive();
+        process_active();
+        process_iactive();
+        process_oactive();
         
         if (entryq.empty() && readyq.empty() && inputq.empty() && outputq.empty() && total_process == 0) {
             cout << "The run has ended." << endl
