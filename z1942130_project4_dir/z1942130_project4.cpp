@@ -28,7 +28,7 @@ using std::pair;
 using std::stoi;
 
 // Constants
-const int MAX_TIME = 500;
+const int MAX_TIME = 250;
 const int IN_USE = 5;
 const int HOW_OFTEN = 25;
 
@@ -37,6 +37,7 @@ deque<Process*> entryq, readyq, inputq, outputq;
 int timer = 0, total_process = 0;
 char current_work;
 int cpu_idle_time = 0;
+bool work_done = false;
 Process* active = nullptr;
 Process* i_active = nullptr;
 Process* o_active = nullptr;
@@ -88,15 +89,19 @@ void update_work_status(Process* &proc) {
         total_process--;
     } else {
         proc->history_index++;
-        /*if (proc->history[proc->history_index].first == 'C') {
-            current_work = 'C';
-        } else if (proc->history[proc->history_index].first == 'I') {
-            cout << "Process " << proc->id << " has moved from the Ready Queue to the Input Queue at time " << timer << endl << endl;
-            current_work = 'I';
+        if (proc->history[proc->history_index].first == 'I') {
+            i_active = proc;
+            proc = nullptr;
+            i_active->i_timer = i_active->history[i_active->history_index].second;
         } else if (proc->history[proc->history_index].first == 'O') {
-            cout << "Process " << proc->id << " has moved from the Ready Queue to the Output Queue at time " << timer << endl << endl;
-            current_work = 'O';
-        }*/
+            o_active = proc;
+            proc = nullptr;
+            o_active->o_timer = o_active->history[o_active->history_index].second;
+        } else if (proc->history[proc->history_index].first == 'C') {
+            active = proc;
+            proc = nullptr;
+            active->cpu_timer = active->history[active->history_index].second;
+        }
     }
 }
 
@@ -134,13 +139,13 @@ void load_process(char type) {
     if (!(active) && !(o_active) && type == 'I') {
         i_active = readyq.front();
         readyq.pop_front();
-        i_active->cpu_timer = i_active->history[i_active->history_index].second;
+        i_active->i_timer = i_active->history[i_active->history_index].second;
         return;
     }
     if (!active && !i_active && type == 'O') {
         o_active = readyq.front();
         readyq.pop_front();
-        o_active->cpu_timer = o_active->history[o_active->history_index].second;
+        o_active->o_timer = o_active->history[o_active->history_index].second;
         return;
     } 
     //cout << "load_process doesnt work" << endl;
@@ -160,9 +165,10 @@ void processActive() {
             //active_process->history_index++;
             active->cpu_burst_count++;
             //update_work_status(active_process);
-            update_work_status(active);
-            //active = nullptr;
+                update_work_status(active);
+                        //active = nullptr;
         }
+        //work_done = true;
         //run it (increase the counters).
         //check if it is the end of CPU burst; if yes, increase counter, decide where to put the process next.
     } else if (active == nullptr) {
@@ -183,9 +189,10 @@ void processIActive() {
             //active_process->history_index++;
             i_active->i_burst_count++;
             //update_work_status(active_process);
-            update_work_status(i_active);
+                update_work_status(i_active);
             //active = nullptr;
         }
+        //work_done = true;
     } else if (i_active == nullptr) {
         cpu_idle_time++;
         // TODO: THIS MIGHT NEED TO BE REMOVED FOR BOTH I/O
@@ -205,9 +212,10 @@ void processOActive() {
             //active_process->history_index++;
             o_active->o_burst_count++;
             //update_work_status(active_process);
-            update_work_status(o_active);
+                update_work_status(o_active);
             //active = nullptr;
         }
+        //work_done = true;
     } else if (o_active == nullptr) {
         cpu_idle_time++;
     }
@@ -278,7 +286,19 @@ int main(int argc, char *argv[]) {
     cout << "Simulation of CPU Scheduling" << endl << endl;
     
     while (timer <= MAX_TIME) {
-        if (timer % HOW_OFTEN == 0 && timer != 0) {
+        work_done = false;
+        // Check to see if the run is done
+        if (entryq.empty() && readyq.empty() && inputq.empty() && outputq.empty() && total_process == 0) {
+            cout << "The run has ended." << endl
+                 << "The final value of the timer was: " << timer << endl
+                 << "The amount of time spent idle was: " << cpu_idle_time << endl
+                 << "Number of terminated processes: " /*<< term_process_count*/ << endl
+                 << "The average waiting time for all terminated processes was: " /*<< average_term_around_time */<< endl;
+            dump_all_queues();
+            return 0;
+        }
+        timer++;
+        if (timer % 2500/*HOW_OFTEN*/ == 0 && timer != 0) {
 
             cout << endl << "Status at time " << timer << endl;
 
@@ -293,23 +313,26 @@ int main(int argc, char *argv[]) {
             dump_all_queues();
         }
 
-        if (timer % 5 == 0) {
+        //if (timer % 5 == 0) {
             if (active)
                 active->debug_info();
             if (i_active)
                 i_active->debug_info();
             if (o_active)
                 o_active->debug_info();
-        }
+        //}
         
         //if (active == nullptr && i_active && nullptr && o_active == nullptr) {
             if (total_process < IN_USE)
                 check_num_process();
         //}
-        processActive();
-        processIActive();
-        processOActive();
-        timer++;
+        if (!work_done)
+            processActive();
+        if (!work_done)
+            processIActive();
+        if (!work_done)
+            processOActive();
+        
 
         /*if (active_process == nullptr) {
             check_num_process(active_process);
@@ -361,19 +384,6 @@ int main(int argc, char *argv[]) {
         }*/
 
 
-        // Check to see if the run is done
-        if (entryq.empty() && readyq.empty() && inputq.empty() && outputq.empty() && total_process == 0) {
-            cout << "The run has ended." << endl
-                 << "The final value of the timer was: " << timer << endl
-                 << "The amount of time spent idle was: " << cpu_idle_time << endl
-                 << "Number of terminated processes: " /*<< term_process_count*/ << endl
-                 << "The average waiting time for all terminated processes was: " /*<< average_term_around_time */<< endl;
-            dump_all_queues();
-            return 0;
-        }
-        //if (active_process)
-        //    active_process->debug_info();
-        timer++;
     }
 
     return 0;

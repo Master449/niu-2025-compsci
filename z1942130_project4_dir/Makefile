@@ -18,5 +18,8 @@ zip: clean
 build:
 	make && ./$(TARGET) tiny.txt
 
+debug:
+	$(CXX) -g $(CXXFLAGS) $(SOURCE) -o $(TARGET)
+
 .PHONY: clean
 
