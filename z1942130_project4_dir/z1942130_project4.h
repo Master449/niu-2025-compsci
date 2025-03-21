@@ -53,7 +53,7 @@ class Process {
         int o_burst_count;
         int idle_time;
         int end_time;
-        int turnaround_time;
+        int wait_time;
 
     // Constructor, just so we don't get garbage values we don't want
     Process() {
@@ -72,7 +72,7 @@ class Process {
         o_burst_count = 0;
         idle_time = 0;
         end_time = 0;
-        turnaround_time = 0;
+        wait_time = 0;
     }
 
     /* debug_info
@@ -110,7 +110,7 @@ class Process {
     *
     * Takes no args and returns nothing, prints to stdout
     *****************************************************/
-    void print_terminate() {
+    int print_terminate() {
         std::cout << "Process " << id << " has ended." << std::endl
                   << "Name              " << name << std::endl
                   << "Started at time   " << arrival_time << " and ended at time " << end_time << std::endl
@@ -118,6 +118,7 @@ class Process {
                   << "Total Input Time  " << i_total << " in " << i_burst_count << " bursts" << std::endl
                   << "Total Output Time " << o_total << " in " << o_burst_count << " bursts" << std::endl
                   << "Time waiting      " << idle_time << std::endl;
+        return wait_time;
     }
 };
 

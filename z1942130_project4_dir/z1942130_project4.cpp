@@ -34,7 +34,7 @@ const int HOW_OFTEN = 25;
 
 // Globals
 deque<Process*> entryq, readyq, inputq, outputq;
-int timer = 0, total_process = 0;
+int timer = 0, total_process = 0, term_process_count = 0, average_wait_time_total = 0;
 char current_work;
 int cpu_idle_time = 0;
 bool work_done = false;
@@ -84,23 +84,26 @@ void dump_all_queues() {
 void update_work_status(Process* &proc) {
     if (proc->history_index == (int)(proc->history.size() - 1)) {
         proc->end_time = timer;
-        proc->print_terminate();
+        average_wait_time_total += proc->print_terminate();
         proc = nullptr;
         total_process--;
+        term_process_count++;
     } else {
         proc->history_index++;
         if (proc->history[proc->history_index].first == 'I') {
-            i_active = proc;
+            proc->i_timer = proc->history[proc->history_index].second;
+            inputq.push_back(proc);
+            cout << "Process " << proc->id << " has moved into the Input Queue at time " << timer << endl << endl;
             proc = nullptr;
-            i_active->i_timer = i_active->history[i_active->history_index].second;
         } else if (proc->history[proc->history_index].first == 'O') {
-            o_active = proc;
+            proc->i_timer = proc->history[proc->history_index].second;
+            outputq.push_back(proc);
+            cout << "Process " << proc->id << " has moved into the Output Queue at time " << timer << endl << endl;
             proc = nullptr;
-            o_active->o_timer = o_active->history[o_active->history_index].second;
         } else if (proc->history[proc->history_index].first == 'C') {
-            active = proc;
+            proc->cpu_timer = proc->history[proc->history_index].second;
+            readyq.push_back(proc);
             proc = nullptr;
-            active->cpu_timer = active->history[active->history_index].second;
         }
     }
 }
@@ -130,30 +133,38 @@ void check_num_process() {
 }
 
 void load_process(char type) {
-    if (!(i_active) && !(o_active) && type == 'C') {
-        active = readyq.front();
-        readyq.pop_front();
-        active->cpu_timer = active->history[active->history_index].second;
-        return;
+    if (type == 'C') {
+        //if (readyq.empty()) {
+            //if (total_process < IN_USE)
+        check_num_process();
+        if (!readyq.empty()) {
+            active = readyq.front();
+            readyq.pop_front();
+            active->cpu_timer = active->history[active->history_index].second;
+        }
     }
-    if (!(active) && !(o_active) && type == 'I') {
-        i_active = readyq.front();
-        readyq.pop_front();
-        i_active->i_timer = i_active->history[i_active->history_index].second;
-        return;
+    if (type == 'I') {
+        if (!inputq.empty()) {
+            i_active = inputq.front();
+            inputq.pop_front();
+            i_active->i_timer = i_active->history[i_active->history_index].second;
+        }
     }
-    if (!active && !i_active && type == 'O') {
-        o_active = readyq.front();
-        readyq.pop_front();
-        o_active->o_timer = o_active->history[o_active->history_index].second;
-        return;
+    if (type == 'O') {
+        if (!outputq.empty()) {
+            o_active = outputq.front();
+            outputq.pop_front();
+            o_active->o_timer = o_active->history[o_active->history_index].second;
+        }
     } 
-    //cout << "load_process doesnt work" << endl;
-    //exit(0);
+    return;
 }
 
 void processActive() {
     if (active == nullptr) {
+        //if (readyq.empty()) {
+        //}
+
         load_process('C');
     }
         
@@ -162,63 +173,47 @@ void processActive() {
         active->cpu_timer--;
                 
         if (active->cpu_timer == 0) {
-            //active_process->history_index++;
             active->cpu_burst_count++;
-            //update_work_status(active_process);
             update_work_status(active);
-            //active = nullptr;
         }
-        //work_done = true;
-        //run it (increase the counters).
-        //check if it is the end of CPU burst; if yes, increase counter, decide where to put the process next.
-    } else if (active == nullptr) {
+    } else {
         cpu_idle_time++;
     }
 }
 
 void processIActive() {
-    //if (i_active == nullptr) {
-    //    load_process('I');
-    //}
+    if (i_active == nullptr) {
+        load_process('I');
+    }
     
     if (i_active != nullptr) {
         i_active->i_total++;
         i_active->i_timer--;
                 
         if (i_active->i_timer == 0) {
-            //active_process->history_index++;
             i_active->i_burst_count++;
-            //update_work_status(active_process);
-                update_work_status(i_active);
-            //active = nullptr;
+            update_work_status(i_active);
         }
-        //work_done = true;
-    } else if (i_active == nullptr) {
-        cpu_idle_time++;
-        // TODO: THIS MIGHT NEED TO BE REMOVED FOR BOTH I/O
     }
 }
 
 void processOActive() {
-    //if (o_active == nullptr) {
-    //    load_process('O');
-    //} // try to load the active process. (active may still be NULL after this.)
+    if (o_active == nullptr) {
+        load_process('O');
+    }
         
     if (o_active != nullptr) {
         o_active->o_total++;
         o_active->o_timer--;
                 
         if (o_active->o_timer == 0) {
-            //active_process->history_index++;
             o_active->o_burst_count++;
-            //update_work_status(active_process);
-                update_work_status(o_active);
-            //active = nullptr;
+            update_work_status(o_active);
         }
         //work_done = true;
-    } else if (o_active == nullptr) {
-        cpu_idle_time++;
-    }
+    } //else if (o_active == nullptr) {
+        //cpu_idle_time++;
+    //}
 }
 
 int main(int argc, char *argv[]) {
@@ -313,32 +308,16 @@ int main(int argc, char *argv[]) {
             dump_all_queues();
         }
 
-        //if (timer % 5 == 0) {
-            //if (active)
-                //active->debug_info();
-            //if (i_active)
-                //i_active->debug_info();
-            //if (o_active)
-                //o_active->debug_info();
-        //}
-        
-        //if (active == nullptr && i_active && nullptr && o_active == nullptr) {
-            if (total_process < IN_USE)
-                check_num_process();
-        //}
-        //if (!work_done)
-            processIActive();
-        //if (!work_done)
-            processOActive();
-        //if (!work_done)
-            processActive();
+        processActive();
+        processIActive();
+        processOActive();
         
         if (entryq.empty() && readyq.empty() && inputq.empty() && outputq.empty() && total_process == 0) {
             cout << "The run has ended." << endl
                  << "The final value of the timer was: " << timer << endl
                  << "The amount of time spent idle was: " << cpu_idle_time << endl
-                 << "Number of terminated processes: " /*<< term_process_count*/ << endl
-                 << "The average waiting time for all terminated processes was: " /*<< average_term_around_time */<< endl;
+                 << "Number of terminated processes: " << term_process_count << endl
+                 << "The average waiting time for all terminated processes was: " << average_wait_time_total / term_process_count << endl;
             dump_all_queues();
             exit(0);
         }
