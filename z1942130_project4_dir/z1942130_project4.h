@@ -51,7 +51,6 @@ class Process {
         int o_total;
         int i_burst_count;
         int o_burst_count;
-        int idle_time;
         int end_time;
         int wait_time;
 
@@ -70,7 +69,6 @@ class Process {
         o_timer = 0;
         o_total = 0;
         o_burst_count = 0;
-        idle_time = 0;
         end_time = 0;
         wait_time = 0;
     }
@@ -110,15 +108,14 @@ class Process {
     *
     * Takes no args and returns nothing, prints to stdout
     *****************************************************/
-    int print_terminate() {
+    void print_terminate() {
         std::cout << "Process " << id << " has ended." << std::endl
                   << "Name              " << name << std::endl
                   << "Started at time   " << arrival_time << " and ended at time " << end_time << std::endl
                   << "Total CPU time    " << cpu_total << " in " << cpu_burst_count << " bursts" << std::endl
                   << "Total Input Time  " << i_total << " in " << i_burst_count << " bursts" << std::endl
                   << "Total Output Time " << o_total << " in " << o_burst_count << " bursts" << std::endl
-                  << "Time waiting      " << idle_time << std::endl;
-        return wait_time;
+                  << "Time waiting      " << wait_time << std::endl << std::endl;
     }
 };
 
