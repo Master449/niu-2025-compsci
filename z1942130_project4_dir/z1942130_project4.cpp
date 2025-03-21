@@ -146,15 +146,20 @@ void check_num_process() {
     
     // If no slots, or entry is empty, don't do anything
     if (slots > 0 && !entryq.empty()) {
-        // If entryq's size is smaller than slots, we don't want a segfault
-        int to_add = std::min(slots, static_cast<int>(entryq.size()));
-        
-        // Add that many processes from entryq to readyq
-        for (int i = 0; i < to_add; i++) {
-            readyq.push_back(entryq.front());
-            entryq.pop_front();
-            total_process++;
-            cout << "Process " << readyq.back()->id << " has moved from the Entry Queue into the Ready Queue at time " << timer << endl << endl;
+        // Add eligible processes to ready queue
+        int added = 0;
+        while (added < slots && !entryq.empty()) {
+            // Check if process has arrived
+            if (entryq.front()->arrival_time <= timer) {
+                readyq.push_back(entryq.front());
+                entryq.pop_front();
+                total_process++;
+                added++;
+                cout << "Process " << readyq.back()->id << " has moved from the Entry Queue into the Ready Queue at time " << timer << endl << endl;
+            } else {
+                // If the front process hasn't arrived yet, no further processes will have arrived
+                break;
+            }
         }
     }
 }
@@ -378,8 +383,8 @@ int main(int argc, char *argv[]) {
     while (timer <= MAX_TIME) {
 
         // First time loadup
-        if (timer == 0)
-            check_num_process();
+        //if (timer == 0)
+        //    check_num_process();
 
         if (timer % HOW_OFTEN == 0) {
 
@@ -417,9 +422,6 @@ int main(int argc, char *argv[]) {
             dump_all_queues();
             exit(0);
         }
-
-        
-
         // Check to see if the run is done
         timer++;
     }
