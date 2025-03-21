@@ -28,7 +28,7 @@ using std::pair;
 using std::stoi;
 
 // Constants
-const int MAX_TIME = 250;
+const int MAX_TIME = 500;
 const int IN_USE = 5;
 const int HOW_OFTEN = 25;
 
@@ -130,7 +130,7 @@ void check_num_process() {
 }
 
 void load_process(char type) {
-    if (!(i_active) && !(o_active) && type == 'A') {
+    if (!(i_active) && !(o_active) && type == 'C') {
         active = readyq.front();
         readyq.pop_front();
         active->cpu_timer = active->history[active->history_index].second;
@@ -154,7 +154,7 @@ void load_process(char type) {
 
 void processActive() {
     if (active == nullptr) {
-        load_process('A');
+        load_process('C');
     }
         
     if (active != nullptr) {
@@ -165,8 +165,8 @@ void processActive() {
             //active_process->history_index++;
             active->cpu_burst_count++;
             //update_work_status(active_process);
-                update_work_status(active);
-                        //active = nullptr;
+            update_work_status(active);
+            //active = nullptr;
         }
         //work_done = true;
         //run it (increase the counters).
@@ -177,9 +177,9 @@ void processActive() {
 }
 
 void processIActive() {
-    if (i_active == nullptr) {
-        load_process('I');
-    }
+    //if (i_active == nullptr) {
+    //    load_process('I');
+    //}
     
     if (i_active != nullptr) {
         i_active->i_total++;
@@ -200,9 +200,9 @@ void processIActive() {
 }
 
 void processOActive() {
-    if (o_active == nullptr) {
-        load_process('O');
-    } // try to load the active process. (active may still be NULL after this.)
+    //if (o_active == nullptr) {
+    //    load_process('O');
+    //} // try to load the active process. (active may still be NULL after this.)
         
     if (o_active != nullptr) {
         o_active->o_total++;
@@ -286,8 +286,53 @@ int main(int argc, char *argv[]) {
     cout << "Simulation of CPU Scheduling" << endl << endl;
     
     while (timer <= MAX_TIME) {
-        work_done = false;
-        // Check to see if the run is done
+        //work_done = false;
+        if (timer % HOW_OFTEN == 0 && timer != 0) {
+
+            cout << endl << "Status at time " << timer << endl;
+
+            // Check if active process
+            if (active)
+                cout << "Active is " << active->id <<  endl; 
+            else 
+                cout << "Active is 0" << endl;
+
+            // Check if iactive process
+            if (i_active)
+                cout << "IActive is " << i_active->id <<  endl; 
+            else 
+                cout << "IActive is 0" << endl;
+            
+            // Check if oactive process
+            if (o_active)
+                cout << "OActive is " << o_active->id <<  endl; 
+            else 
+                cout << "OActive is 0" << endl;
+
+            // Dump queues
+            dump_all_queues();
+        }
+
+        //if (timer % 5 == 0) {
+            //if (active)
+                //active->debug_info();
+            //if (i_active)
+                //i_active->debug_info();
+            //if (o_active)
+                //o_active->debug_info();
+        //}
+        
+        //if (active == nullptr && i_active && nullptr && o_active == nullptr) {
+            if (total_process < IN_USE)
+                check_num_process();
+        //}
+        //if (!work_done)
+            processIActive();
+        //if (!work_done)
+            processOActive();
+        //if (!work_done)
+            processActive();
+        
         if (entryq.empty() && readyq.empty() && inputq.empty() && outputq.empty() && total_process == 0) {
             cout << "The run has ended." << endl
                  << "The final value of the timer was: " << timer << endl
@@ -295,94 +340,11 @@ int main(int argc, char *argv[]) {
                  << "Number of terminated processes: " /*<< term_process_count*/ << endl
                  << "The average waiting time for all terminated processes was: " /*<< average_term_around_time */<< endl;
             dump_all_queues();
-            return 0;
+            exit(0);
         }
+
+        // Check to see if the run is done
         timer++;
-        if (timer % 2500/*HOW_OFTEN*/ == 0 && timer != 0) {
-
-            cout << endl << "Status at time " << timer << endl;
-
-            // Check if active process
-            //if (active_process) {
-            //    cout << "Active is " << active_process->id <<  endl; 
-            //} else {
-            //    cout << "Active is 0" << endl;
-            //}
-
-            // Dump queues
-            dump_all_queues();
-        }
-
-        //if (timer % 5 == 0) {
-            if (active)
-                active->debug_info();
-            if (i_active)
-                i_active->debug_info();
-            if (o_active)
-                o_active->debug_info();
-        //}
-        
-        //if (active == nullptr && i_active && nullptr && o_active == nullptr) {
-            if (total_process < IN_USE)
-                check_num_process();
-        //}
-        if (!work_done)
-            processActive();
-        if (!work_done)
-            processIActive();
-        if (!work_done)
-            processOActive();
-        
-
-        /*if (active_process == nullptr) {
-            check_num_process(active_process);
-            active_process = readyq.front();
-            readyq.pop_front();
-            
-            if (active_process->history[active_process->history_index].first == 'C') {
-                active_process->cpu_timer = active_process->history[active_process->history_index].second;
-                current_work = 'C';
-            } else if (active_process->history[active_process->history_index].first == 'I') {
-                active_process->i_timer = active_process->history[active_process->history_index].second;
-                current_work = 'I';
-            } else if (active_process->history[active_process->history_index].first == 'O') {
-                active_process->o_timer = active_process->history[active_process->history_index].second;
-                current_work = 'O';
-            }
-            
-        } else {
-            switch(current_work) {
-                case 'C':
-                    active_process->cpu_total++;
-                    active_process->cpu_timer--;
-                
-                    if (active_process->cpu_timer == 0) {
-                        //active_process->history_index++;
-                        active_process->cpu_burst_count++;
-                        //update_work_status(active_process);
-                        update_work_status(active_process);
-                        active_process = nullptr;
-                    }
-                    break;
-
-                case 'I':
-                    handle_io(active_process, "Input");
-                    if (active_process->i_timer == 0) {
-                        active_process = nullptr;
-                    }
-                    break;
-
-                case 'O':
-                    handle_io(active_process, "Output");
-                    if (active_process->o_timer == 0) {
-                        active_process = nullptr;
-                    }
-                    break;
-                default:
-                    continue;
-            }
-        }*/
-
 
     }
 
