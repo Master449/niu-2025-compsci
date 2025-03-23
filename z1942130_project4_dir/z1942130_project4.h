@@ -73,35 +73,6 @@ class Process {
         wait_time = 0;
     }
 
-    /* debug_info
-    *    For debugging purposes. When called it will
-    *    spit out all information about the process
-    *    that called this function.
-    *
-    * Takes no args and returns nothing, prints to stdout
-    *****************************************************/
-    void debug_info() {
-        std::cout << string(30, '-') << std::endl
-                  << "Name:        " << name << std::endl
-                  << "ID:          " << id << std::endl
-                  << "Arrival:     " << arrival_time << std::endl
-                  << "History:     ";
-
-        for (const auto& it : history) {
-            std::cout << "(" << it.first << "," << it.second << ")  ";
-        }
-
-        std::cout << std::endl;
-
-        std::cout << "Hist. Index: " << history_index << std::endl
-                  << "CPU Timer:   " << cpu_timer << std::endl
-                  << "CPU Total:   " << cpu_total << std::endl
-                  << "CPU Bursts:  " << cpu_burst_count << std::endl
-                  << "I/O Timer:   " << "(" << i_timer << "," << o_timer << ")" << std::endl
-                  << "I/O Total:   " << "(" << i_total << "," << o_total << ")" << std::endl
-                  << "I/O Bursts:  " << "(" << i_burst_count << "," << o_burst_count << ")" << std::endl;
-    }
-    
     /* terminate
     *    Prints out the summary of a processes runtime
     *    after its completed its entire task.
@@ -121,8 +92,70 @@ class Process {
 
 /* dump_queue
  *    takes a reference to a queue and prints all the process
- *    IDs that are inside.
+ *    IDs that are inside. Mainly for the summaries.
+ *
+ * Args
+ *   q    - reference to a queue
+ *   name - name of the queue to print
  ****************************************************************/
 void dump_queue(deque<Process*>& q, string name);
+
+/* dump_all_queues
+ *    Just prints out every queue sequentially
+ *
+ *    No args and no return
+ * ****************************************/
+void dump_all_queues();
+
+/* update_work_status
+ *    checks if a process is at the end of its history, and terminates if so.
+ *    if its not, updates the timers for the work to be done, puts it in
+ *    the correct queue for processing, and prints out the change.
+ *
+ * Args
+ *   proc - reference to process
+ * ******************************************************************************/
+void update_work_status(Process* &proc);
+
+/* check_num_process
+ *    checks to see if there is room to add any processes
+ *    from the entryq to the readyq
+ * ***************************************************************/
+void check_num_process();
+
+/* load_process
+ *    loads a new process, from either
+ *      readyq -> cpu
+ *      inputq -> i_active
+ *      outputq -> o_active
+ *
+ * Args
+ *   type - char to specify where we came from
+ * ***************************************************************/
+void load_process(char type);
+
+/* process_active
+ *    processes the CPUs bursts. If the burst reaches 0
+ *    sends it to update_work_status to see if it
+ *    stops or moves onto bigger and better things
+ *
+ *    if nothing is here it adds idle time to the total
+ * ***************************************************************/
+void process_active();
+
+/* process_iactive
+ *    processes the input burst. If the burst reaches 0
+ *    sends it to update_work_status to see if it
+ *    stops or moves onto bigger and better things
+ *
+ * ***************************************************************/
+void process_iactive();
+
+/* process_oactive
+ *    processes the output burst. If the burst reaches 0
+ *    sends it to update_work_status to see if it
+ *    stops or moves onto bigger and better things
+ *
+ * ***************************************************************/
 
 #endif // Z1942130_PROJECT4_H

@@ -32,16 +32,11 @@ const int MAX_TIME = 500;
 const int IN_USE = 5;
 const int HOW_OFTEN = 25;
 
-
-// TODO: Need to implement the waiting time to process, and then calculate average
-
-
 // Globals
 deque<Process*> entryq, readyq, inputq, outputq;
 Process* active = nullptr;
 Process* i_active = nullptr;
 Process* o_active = nullptr;
-
 int timer = 0, total_process = 0, term_process_count = 0, average_wait_time_total = 0, cpu_idle_time = 0;
 char current_work;
 bool work_done = false;
@@ -157,7 +152,7 @@ void check_num_process() {
                 added++;
                 cout << "Process " << readyq.back()->id << " has moved from the Entry Queue into the Ready Queue at time " << timer << endl << endl;
             } else {
-                // If the front process hasn't arrived yet, no further processes will have arrived
+                // If the process hasn't arrived yet, dont do anything
                 break;
             }
         }
@@ -377,15 +372,10 @@ int main(int argc, char *argv[]) {
     //
     // Main Scheduling Loop
     //
-
     cout << "Simulation of CPU Scheduling" << endl << endl;
-    
     while (timer <= MAX_TIME) {
 
-        // First time loadup
-        //if (timer == 0)
-        //    check_num_process();
-
+        // If its status time print it
         if (timer % HOW_OFTEN == 0) {
 
             cout << "Status at time " << timer << endl;
@@ -404,10 +394,9 @@ int main(int argc, char *argv[]) {
 
             // Dump queues
             dump_all_queues();
-
         }
 
-        // Process the differene queues
+        // Process the different queues
         process_active();
         process_iactive();
         process_oactive();
@@ -425,6 +414,5 @@ int main(int argc, char *argv[]) {
         // Check to see if the run is done
         timer++;
     }
-
     return 0;
 }
