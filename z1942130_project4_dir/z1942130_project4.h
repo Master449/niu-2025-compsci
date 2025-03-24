@@ -40,6 +40,7 @@ class Process {
         string name;
         int id;
         int arrival_time;
+        int start_time;
         vector<pair<char, int>> history;
         int history_index;
         int cpu_timer;
@@ -59,6 +60,7 @@ class Process {
         name = "";
         id = 0;
         arrival_time = 0;
+        start_time = 0;
         history_index = 0;
         cpu_timer = 0;
         cpu_total = 0;
@@ -82,7 +84,7 @@ class Process {
     void print_terminate() {
         std::cout << "Process " << id << " has ended." << std::endl
                   << "Name              " << name << std::endl
-                  << "Started at time   " << arrival_time << " and ended at time " << end_time << std::endl
+                  << "Started at time   " << start_time << " and ended at time " << end_time << std::endl
                   << "Total CPU time    " << cpu_total << " in " << cpu_burst_count << " bursts" << std::endl
                   << "Total Input Time  " << i_total << " in " << i_burst_count << " bursts" << std::endl
                   << "Total Output Time " << o_total << " in " << o_burst_count << " bursts" << std::endl
@@ -132,7 +134,7 @@ void check_num_process();
  * Args
  *   type - char to specify where we came from
  * ***************************************************************/
-void load_process(char type);
+//void load_process(Process* &proc);
 
 /* process_active
  *    processes the CPUs bursts. If the burst reaches 0

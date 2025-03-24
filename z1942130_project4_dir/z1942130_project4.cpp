@@ -37,11 +37,16 @@ deque<Process*> entryq, readyq, inputq, outputq;
 Process* active = nullptr;
 Process* i_active = nullptr;
 Process* o_active = nullptr;
-int timer = 0, total_process = 0, term_process_count = 0, average_wait_time_total = 0, cpu_idle_time = 0;
-char current_work;
+bool idle_print_out = true;
+int timer = 0,
+    total_process = 0,
+    term_process_count = 0,
+    average_wait_time_total = 0,
+    cpu_idle_time = 0,
+    old_active_id = 0;
 
 /* dump_queue
- *    takes a reference to a queue and prints all the process
+ *    Takes a reference to a queue and prints all the process
  *    IDs that are inside. Mainly for the summaries.
  *
  * Args
@@ -77,9 +82,9 @@ void dump_all_queues() {
 }
 
 /* update_work_status
- *    checks if a process is at the end of its history, and terminates if so.
- *    if its not, updates the timers for the work to be done, puts it in
- *    the correct queue for processing, and prints out the change.
+ *    Checks if a process is at the end of its history, and terminates if so.
+ *    If its not, updates the timers for the work to be done, puts it in
+ *    The correct queue for processing, and prints out the change.
  *
  * Args
  *   proc - reference to process
@@ -88,8 +93,10 @@ void update_work_status(Process* &proc) {
     // Check if we are at the end of the processes history
     if (proc->history_index == (int)(proc->history.size() - 1)) {
         // If so, update the end time and processor counts, print out 
-        // the terminate summary, and make the process nullptr again
-        proc->end_time = timer;
+        // start wait and end times, and print the terminate summary
+        // then make the process nullptr again, so another can be loaded
+        proc->end_time = timer + 1;
+        proc->wait_time = (proc->end_time - proc->start_time) - proc->cpu_total - proc->i_total - proc->o_total;
         average_wait_time_total += proc->wait_time;
         proc->print_terminate();
         proc = nullptr;
@@ -116,7 +123,7 @@ void update_work_status(Process* &proc) {
             proc = nullptr;
         // Output task
         } else if (new_task == 'O') {
-            proc->i_timer = proc->history[proc->history_index].second;
+            proc->o_timer = proc->history[proc->history_index].second;
             outputq.push_back(proc);
             proc = nullptr;
         // CPU task
@@ -129,8 +136,8 @@ void update_work_status(Process* &proc) {
 }
 
 /* check_num_process
- *    checks to see if there is room to add any processes
- *    from the entryq to the readyq
+ *    Checks to see if there is room to add any processes
+ *    From the entryq to the readyq
  * ***************************************************************/
 void check_num_process() {
     // Calculate total processes, and open slots
@@ -144,33 +151,34 @@ void check_num_process() {
         while (added < slots && !entryq.empty()) {
             // Check if process has arrived
             if (entryq.front()->arrival_time <= timer) {
+                // If it arrived, update start time
+                // push it to ready queue
+                entryq.front()->start_time = timer;
                 readyq.push_back(entryq.front());
                 entryq.pop_front();
-                total_process++;
+                   // This is only here because of tiny.txt
+                   total_process++;
+                   // No im serious, remove it and try tiny.txt again
                 added++;
                 cout << "Process " << readyq.back()->id << " has moved from the Entry Queue into the Ready Queue at time " << timer << endl << endl;
             } else {
-                // If the process hasn't arrived yet, dont do anything
+                // If the process hasnt arrived yet, dont do anything
                 break;
             }
         }
     }
 }
 
-/* load_process
- *    loads a new process, from either
- *      readyq -> cpu
- *      inputq -> i_active
- *      outputq -> o_active
+/* process_active
+ *    Processes the CPUs bursts. If the burst reaches 0
+ *    Sends it to update_work_status to see if it
+ *    Stops or moves onto bigger and better things
  *
- * Args
- *   type - char to specify where we came from
+ *    If nothing is here it adds idle time to the total
  * ***************************************************************/
-void load_process(char type) {
-    
-    // If we were called from process_active()
-    if (type == 'C') {
-        // Check for more processes if readyq is empty
+void process_active() {
+    // If no process, see if we can load one
+    if (active == nullptr) {
         if (readyq.empty())
             check_num_process();
         // Double check queue is not empty
@@ -178,94 +186,73 @@ void load_process(char type) {
             active = readyq.front();
             readyq.pop_front();
             active->cpu_timer = active->history[active->history_index].second;
+        } else if (!entryq.empty() && (total_process < IN_USE)) {
+            active = entryq.front();
+            entryq.pop_front();
+            active->cpu_timer = active->history[active->history_index].second;
+            check_num_process();
         }
-    }
-
-    // If we were called from process_iactive()
-    if (type == 'I') {
-        // Double check queue is not empty
-        if (!inputq.empty()) {
-            // load the process, pop the queue, and update the work to do
-            i_active = inputq.front();
-            inputq.pop_front();
-            i_active->i_timer = i_active->history[i_active->history_index].second;
-        }
-    }
-
-    // If we were called from process_oactive()
-    if (type == 'O') {
-        // Double check queue is not empty
-        if (!outputq.empty()) {
-            // load the process, pop the queue, and update the work to do
-            o_active = outputq.front();
-            outputq.pop_front();
-            o_active->o_timer = o_active->history[o_active->history_index].second;
-        }
-    }
-    return;
-}
-
-/* process_active
- *    processes the CPUs bursts. If the burst reaches 0
- *    sends it to update_work_status to see if it
- *    stops or moves onto bigger and better things
- *
- *    if nothing is here it adds idle time to the total
- * ***************************************************************/
-void process_active() {
-    // If no process, see if we can load one
-    if (active == nullptr) {
-        load_process('C');
     }
     
     // Double check we have a process
     if (active != nullptr) {
+        // If we've done some work, idle flag gets reset
+        idle_print_out = true;
+
         // Increment cpu total, and decrement work timer
         active->cpu_total++;
         active->cpu_timer--;
-        
-        // Add waiting time for others left in queue
-        for (auto it : readyq) {
-            it->wait_time++;
-        }
         
         // If we are at the end of this burst
         // add it to total, and see where next
         if (active->cpu_timer == 0) {
             active->cpu_burst_count++;
+            old_active_id = active->id;
             update_work_status(active);
         }
     } else {
         // If no process, add idle time
         cpu_idle_time++;
-        cout << "At time " << timer << " Active is 0, so we idle for a while" << endl << endl;
+
+        // Flag is so we only print once when we start idling
+        if (idle_print_out) {
+            cout << "At time " << timer << " Active is 0, so we idle for a while" << endl << endl;
+            idle_print_out = false;
+        }
     }
 }
 
 /* process_iactive
- *    processes the input burst. If the burst reaches 0
- *    sends it to update_work_status to see if it
- *    stops or moves onto bigger and better things
+ *    Processes the input burst. If the burst reaches 0
+ *    Sends it to update_work_status to see if it
+ *    Stops or moves onto bigger and better things
  *
  * ***************************************************************/
 void process_iactive() {
     // If no process, see if we can load one
     if (i_active == nullptr) {
-        load_process('I');
+
+        if (!inputq.empty()) {
+            // load the process, pop the queue, and update the work to do
+            i_active = inputq.front();
+            inputq.pop_front();
+            i_active->i_timer = i_active->history[i_active->history_index].second;
+        } else {
+            return;
+        }
     }
     
     // Double check we have a process
     if (i_active != nullptr) {
+        // Double check we arent double dipping work
+        // during 1 tick
+        if (old_active_id == i_active->id)
+            return;
+
         // Increment input total, and decrement work timer
         i_active->i_total++;
         i_active->i_timer--;
 
-        // Add waiting time for others left in queue
-        for (auto it : inputq) {
-            it->wait_time++;
-        }
-        
-                
         // If we are at the end of this burst
         // add it to total, and see where next
         if (i_active->i_timer == 0) {
@@ -273,31 +260,38 @@ void process_iactive() {
             update_work_status(i_active);
         }
     }
-    // If no process, do nothing
 }
 
 /* process_oactive
- *    processes the output burst. If the burst reaches 0
- *    sends it to update_work_status to see if it
- *    stops or moves onto bigger and better things
+ *    Processes the output burst. If the burst reaches 0
+ *    Sends it to update_work_status to see if it
+ *    Stops or moves onto bigger and better things
  *
  * ***************************************************************/
 void process_oactive() {
     // If no process, see if we can load one
     if (o_active == nullptr) {
-        load_process('O');
+        //load_process('O');
+        if (!outputq.empty()) {
+            // load the process, pop the queue, and update the work to do
+            o_active = outputq.front();
+            outputq.pop_front();
+            o_active->o_timer = o_active->history[o_active->history_index].second;
+        } else {
+            return;
+        }
     }
 
     // Double check we have a process
     if (o_active != nullptr) {
+        // Double check we arent double dipping
+        // work during 1 cycle
+        if (old_active_id == o_active->id)
+            return;
+
         // Increment output total, and decrement work timer
         o_active->o_total++;
         o_active->o_timer--;
-
-        // Add waiting time for others left in queue
-        for (auto it : outputq) {
-            it->wait_time++;
-        }
 
         // If we are at the end of this burst
         // add it to total, and see where next
@@ -306,12 +300,11 @@ void process_oactive() {
             update_work_status(o_active);
         }
     }
-    // If no process, do nothing
 }
 
 int main(int argc, char *argv[]) {
     // Need some sort of input, if none provided, exit
-    if (argc != 2) {
+    if (argc < 1) {
         cout << "Need an input file" << endl;
         return 1;
     }
@@ -370,7 +363,12 @@ int main(int argc, char *argv[]) {
     //
     // Main Scheduling Loop
     //
+    
     cout << "Simulation of CPU Scheduling" << endl << endl;
+
+    // Load readyq for the first time
+    check_num_process();
+
     while (timer <= MAX_TIME) {
 
         // If its status time print it
@@ -398,7 +396,7 @@ int main(int argc, char *argv[]) {
         process_active();
         process_iactive();
         process_oactive();
-        
+
         // If we are all done, print the summary of all processes
         if (entryq.empty() && readyq.empty() && inputq.empty() && outputq.empty() && total_process == 0) {
             cout << "The run has ended." << endl
@@ -409,7 +407,10 @@ int main(int argc, char *argv[]) {
             dump_all_queues();
             exit(0);
         }
-        // Check to see if the run is done
+        // Update double-dip safety flag
+        old_active_id = 0;
+
+        // Increment timer
         timer++;
     }
     return 0;
