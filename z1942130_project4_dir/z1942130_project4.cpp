@@ -39,7 +39,6 @@ Process* i_active = nullptr;
 Process* o_active = nullptr;
 int timer = 0, total_process = 0, term_process_count = 0, average_wait_time_total = 0, cpu_idle_time = 0;
 char current_work;
-bool work_done = false;
 
 /* dump_queue
  *    takes a reference to a queue and prints all the process
@@ -91,7 +90,6 @@ void update_work_status(Process* &proc) {
         // If so, update the end time and processor counts, print out 
         // the terminate summary, and make the process nullptr again
         proc->end_time = timer;
-        //proc->wait_time = (proc->end_time - proc->arrival_time) - proc->cpu_total - proc->i_total - proc->o_total;
         average_wait_time_total += proc->wait_time;
         proc->print_terminate();
         proc = nullptr;
@@ -169,7 +167,7 @@ void check_num_process() {
  *   type - char to specify where we came from
  * ***************************************************************/
 void load_process(char type) {
-
+    
     // If we were called from process_active()
     if (type == 'C') {
         // Check for more processes if readyq is empty
