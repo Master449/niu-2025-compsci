@@ -1,12 +1,12 @@
 CXX = g++
 CXXFLAGS = -Wall -std=c++11
 
-TARGET = z1942130_project4
-SOURCE = z1942130_project4.cpp
+TARGET = z1942130_project5
+SOURCE = z1942130_project5.cpp
 CURRENT_DIR = $(notdir $(shell pwd))
 
 $(TARGET): $(SOURCE)
-	$(CXX) $(CXXFLAGS) $(SOURCE) -o $(TARGET)
+	$(CXX) $(CXXFLAGS) $(SOURCE) -o $(TARGET) -lpthread
 
 clean:
 	rm $(TARGET)
