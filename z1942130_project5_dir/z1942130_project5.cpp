@@ -41,7 +41,8 @@ void *writer(void *param) {
 
 
         if (!shared_data.empty()) {
-            cout<< "writer " << tid << " is writing ..." << endl;
+            printf("writer %ld is writing ...\n", tid);
+            fflush(stdout);
             shared_data.pop_back();
         }
 
@@ -51,7 +52,9 @@ void *writer(void *param) {
         // sleep
         sleep(1);
     }
-    cout << "writer " << tid << " is exiting ..." << endl;
+    printf("writer %ld is exiting ...\n", tid);
+    fflush(stdout);
+    
     pthread_exit(NULL);
 }
 
@@ -69,7 +72,8 @@ void *reader(void *param) {
         read_count++;
 
         // printout the new total
-        cout << "read_count increments to: " << read_count << "." << endl;
+        printf("read_count increments to: %d.\n", read_count);
+        fflush(stdout);
         
         // attempt to lockout writers
         if (read_count == 1) {
@@ -79,7 +83,8 @@ void *reader(void *param) {
         // exit reader only critical section
         sem_post(&ro_semaphore);
 
-        cout<< "reader " << tid << " is reading ... content : " << shared_data << endl;
+        printf("reader %ld is reading ... content : %s\n", tid, shared_data.c_str());
+        fflush(stdout);
 
         // enter reader only critical section
         sem_wait(&ro_semaphore);
@@ -87,7 +92,8 @@ void *reader(void *param) {
         // decrement reader total
         read_count--;
 
-        cout << "read_count decrements to: " << read_count << "." << endl;
+        printf("read_count decrements to: %d.\n", read_count);
+        fflush(stdout);
         
         // last reader unblocks the writers
         if (read_count == 0) {
@@ -99,7 +105,9 @@ void *reader(void *param) {
         
         sleep(1);
     }
-    cout << "reader " << tid << " is exiting ..." << endl;
+    printf("reader %ld is exiting ...\n", tid);
+    fflush(stdout);
+    
     pthread_exit(NULL);
 }
 
@@ -142,7 +150,6 @@ int main(int argc, char *argv[]) {
     
     // Initialize reader threads
     for(long i = 0; i < reader_count; i++) {
-       pthread_create(&reader_threads[i], NULL, reader, (void *)i);
        if (pthread_create(&reader_threads[i], NULL, reader, (void *)i) != 0) {
           cerr << "Failed to init. reader thread" << endl;
           exit(5);
