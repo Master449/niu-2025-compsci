@@ -27,7 +27,7 @@ string shared_data = "All work and no play makes Jack a dull boy.";
 sem_t rw_semaphore; // Semaphore for both readers and writers
 sem_t ro_semaphore; // Semaphore for only readers critical section
 
-int total_readers;
+int read_count;
 
 void *writer(void *param) {
     // Local variables
@@ -38,18 +38,18 @@ void *writer(void *param) {
     while(!shared_data.empty()) {
         // enter critical section
         if (sem_wait(&rw_semaphore) != 0) {
-            cerr << "Entering critical section failed" << endl;
+            cerr << "WRITER THREAD: Entering critical writer section failed (rw_semaphore)" << endl;
             exit(7);
         }
-        
+
         cout<< "writer " << tid << " is writing ..." << endl;
 
         if (!shared_data.empty())
             shared_data.pop_back();
-        
+
         // exit critical section
         if (sem_post(&rw_semaphore) != 0) {
-            cerr << "Exiting critical section failed" << endl;
+            cerr << "WRITER THREAD: Exiting critical writer section failed (rw_semaphore)" << endl;
             exit(8);
         }
 
@@ -66,19 +66,40 @@ void *reader(void *param) {
 
     // loop until string is empty
     while(!shared_data.empty()) {
-        // enter critical section
-        if (sem_wait(&rw_semaphore) != 0) {
-            cerr << "Entering critical section failed" << endl;
-            exit(7);
+        // enter readers only critical section
+        sem_wait(&ro_semaphore);
+
+        // increment reader total
+        read_count++;
+
+        // printout the new total
+        cout << "read_count increments to: " << read_count << "." << endl;
+        
+        // attempt to lockout writers
+        if (read_count == 1) {
+            sem_wait(&rw_semaphore);
         }
+        
+        // exit reader only critical section
+        sem_post(&ro_semaphore);
 
         cout<< "reader " << tid << " is reading ... content : " << shared_data << endl;
 
-        // exit critical section
-        if (sem_post(&rw_semaphore) != 0) {
-            cerr << "Exiting critical section failed" << endl;
-            exit(8);
+        // enter reader only critical section
+        sem_wait(&ro_semaphore);
+
+        // decrement reader total
+        read_count--;
+
+        cout << "read_count decrements to: " << read_count << "." << endl;
+        
+        // last reader unblocks the writers
+        if (read_count == 0) {
+            sem_post(&rw_semaphore);
         }
+
+        // exit critical section
+        sem_post(&ro_semaphore);
         
         sleep(1);
     }
@@ -87,8 +108,7 @@ void *reader(void *param) {
 
 int main(int argc, char *argv[]) {
 
-    int reader_count, writer_count, rt, wt;
-    long total_threads;
+    int reader_count, writer_count;
 
     // Check command line args
     if (argc != 3) {
