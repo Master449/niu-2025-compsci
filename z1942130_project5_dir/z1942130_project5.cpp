@@ -121,12 +121,12 @@ int main(int argc, char *argv[]) {
         reader_count = stoi(argv[1]);
         writer_count = stoi(argv[2]);
     } catch(const std::invalid_argument &e) {
-        std::cerr << "Invalid Argument " <<  e.what() << endl;;
+        std::cerr << "Invalid Argument " <<  e.what() << endl;
         exit(2);
     }
 
     if (reader_count <= 0 || writer_count <= 0) {
-        std::cerr << "Args must be positive integers." << endl;;
+        std::cerr << "Args must be positive integers." << endl;
         exit(3);
     }
 
@@ -153,8 +153,8 @@ int main(int argc, char *argv[]) {
     }
 
     // Initialize writer threads
-    for(long i = 0; i < writer_count; i++) {
-       if (pthread_create(&writer_threads[i], NULL, writer, (void *)i) != 0) {
+    for(long j = 0; j < writer_count; j++) {
+       if (pthread_create(&writer_threads[j], NULL, writer, (void *)j) != 0) {
           cerr << "Failed to init. writer thread" << endl;
           exit(6);
        }
@@ -166,8 +166,8 @@ int main(int argc, char *argv[]) {
     }
 
     // Wait for writer threads to finish.
-    for (long i = 0; i < writer_count; i++) {
-        pthread_join(writer_threads[i], NULL);
+    for (long j = 0; j < writer_count; j++) {
+        pthread_join(writer_threads[j], NULL);
     }
 
     sem_destroy(&rw_semaphore);
