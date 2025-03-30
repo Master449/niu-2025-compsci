@@ -12,15 +12,18 @@ Programmer: David Flowers II
 *********************************************************************/
 #include <pthread.h>
 #include <iostream>
+#include <vector>
 #include <string>
 #include <semaphore.h>
 #include <unistd.h>
+#include <numeric>
 
 using std::string;
 using std::cout;
 using std::cerr;
 using std::endl;
 using std::stoi;
+using std::vector;
 
 string shared_data = "All work and no play makes Jack a dull boy.";
 
@@ -31,8 +34,7 @@ int read_count;
 
 void *writer(void *param) {
     // Local variables
-    long tid;
-    tid = (long)param;
+    long tid = *((long *)param);
 
     // loop until string is empty
     while(!shared_data.empty()) {
@@ -60,8 +62,7 @@ void *writer(void *param) {
 
 void *reader(void *param) {
     // Local variables
-    long tid;
-    tid = (long)param;
+    long tid = *((long *)param);
 
     // loop until string is empty
     while(!shared_data.empty()) {
@@ -144,18 +145,20 @@ int main(int argc, char *argv[]) {
         cerr << "Read/Write semaphore init failed" << endl;
         exit(4);
     }
-    
+
     if (sem_init(&ro_semaphore, 0, 1) != 0) {
         cerr << "Reader Only semaphore init failed" << endl;
         exit(4);
     }
 
-    pthread_t reader_threads[reader_count];
-    pthread_t writer_threads[writer_count];
-    
+    vector<pthread_t> reader_threads(reader_count);
+    vector<pthread_t> writer_threads(writer_count);
+    vector<long> reader_thread_ids(reader_count);
+    vector<long> writer_thread_ids(writer_count);
+
     // Initialize reader threads
     for(long i = 0; i < reader_count; i++) {
-       if (pthread_create(&reader_threads[i], NULL, reader, (void *)i) != 0) {
+       if (pthread_create(&reader_threads[i], NULL, reader, &reader_thread_ids[i])) {
           cerr << "Failed to init. reader thread" << endl;
           exit(5);
        }
@@ -163,7 +166,7 @@ int main(int argc, char *argv[]) {
 
     // Initialize writer threads
     for(long j = 0; j < writer_count; j++) {
-       if (pthread_create(&writer_threads[j], NULL, writer, (void *)j) != 0) {
+       if (pthread_create(&writer_threads[j], NULL, writer, &writer_thread_ids[j])) {
           cerr << "Failed to init. writer thread" << endl;
           exit(6);
        }
