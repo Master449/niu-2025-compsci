@@ -37,25 +37,21 @@ void *writer(void *param) {
     // loop until string is empty
     while(!shared_data.empty()) {
         // enter critical section
-        if (sem_wait(&rw_semaphore) != 0) {
-            cerr << "WRITER THREAD: Entering critical writer section failed (rw_semaphore)" << endl;
-            exit(7);
-        }
+        sem_wait(&rw_semaphore);
 
-        cout<< "writer " << tid << " is writing ..." << endl;
 
-        if (!shared_data.empty())
+        if (!shared_data.empty()) {
+            cout<< "writer " << tid << " is writing ..." << endl;
             shared_data.pop_back();
+        }
 
         // exit critical section
-        if (sem_post(&rw_semaphore) != 0) {
-            cerr << "WRITER THREAD: Exiting critical writer section failed (rw_semaphore)" << endl;
-            exit(8);
-        }
+        sem_post(&rw_semaphore);
 
         // sleep
         sleep(1);
     }
+    cout << "writer " << tid << " is exiting ..." << endl;
     pthread_exit(NULL);
 }
 
@@ -103,6 +99,7 @@ void *reader(void *param) {
         
         sleep(1);
     }
+    cout << "reader " << tid << " is exiting ..." << endl;
     pthread_exit(NULL);
 }
 
