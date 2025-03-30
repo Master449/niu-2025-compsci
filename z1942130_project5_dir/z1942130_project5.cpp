@@ -140,11 +140,16 @@ int main(int argc, char *argv[]) {
          << "Number of writer threads: " << writer_count << endl;
 
     // Initialization of semaphores
-    if(sem_init(&rw_semaphore, 0, 1) != 0 || sem_init(&ro_semaphore, 0, 1) != 0) {
-        cerr << "Semaphore init failed" << endl;
+    if (sem_init(&rw_semaphore, 0, 1) != 0) {
+        cerr << "Read/Write semaphore init failed" << endl;
         exit(4);
     }
     
+    if (sem_init(&ro_semaphore, 0, 1) != 0) {
+        cerr << "Reader Only semaphore init failed" << endl;
+        exit(4);
+    }
+
     pthread_t reader_threads[reader_count];
     pthread_t writer_threads[writer_count];
     

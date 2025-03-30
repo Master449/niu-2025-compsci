@@ -38,11 +38,10 @@ void *writer(void *param) {
         // enter critical section
         sem_wait(&semaphore1);
 
-
         if (!shared_data.empty()) {
+            shared_data.pop_back();
             printf("writer %ld is writing ...\n", tid);
             fflush(stdout);
-            shared_data.pop_back();
         }
 
         // exit critical section
@@ -85,7 +84,7 @@ void *reader(void *param) {
 
 int main(int argc, char *argv[]) {
 
-    int reader_count, writer_count;
+    int reader_count, writer_count, rc;
 
     // Check command line args
     if (argc != 3) {
@@ -127,28 +126,38 @@ int main(int argc, char *argv[]) {
     
     // Initialize reader threads
     for(long i = 0; i < reader_count; i++) {
-       if (pthread_create(&reader_threads[i], NULL, reader, (void *)i) != 0) {
-          cerr << "Failed to init. reader thread" << endl;
-          exit(5);
-       }
+        rc = pthread_create(&reader_threads[i], NULL, reader, (void *)i);
+        if (rc) {
+           cerr << "Failed to init. reader thread" << endl;
+           exit(5);
+        }
     }
 
     // Initialize writer threads
     for(long j = 0; j < writer_count; j++) {
-       if (pthread_create(&writer_threads[j], NULL, writer, (void *)j) != 0) {
-          cerr << "Failed to init. writer thread" << endl;
-          exit(6);
-       }
+        rc = pthread_create(&writer_threads[j], NULL, writer, (void *)j);
+        if (rc) {
+            cerr << "Failed to init. writer thread" << endl;
+            exit(6);
+        }
     }
 
     // Wait for reader threads to finish.
     for (long i = 0; i < reader_count; i++) {
-        pthread_join(reader_threads[i], NULL);
+        rc = pthread_join(reader_threads[i], NULL);
+        if (rc) {
+            cerr << "Failed to init. writer thread" << endl;
+            exit(6);
+        }
     }
 
     // Wait for writer threads to finish.
     for (long j = 0; j < writer_count; j++) {
-        pthread_join(writer_threads[j], NULL);
+        rc = pthread_join(writer_threads[j], NULL);
+        if (rc) {
+            cerr << "Failed to init. writer thread" << endl;
+            exit(6);
+        }
     }
 
     sem_destroy(&semaphore1);
