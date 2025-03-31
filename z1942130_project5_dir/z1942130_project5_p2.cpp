@@ -32,7 +32,14 @@ int read_counti, reader_count, writer_count;
 sem_t rw_sem; // Semaphore for both readers and writers
 sem_t cs_sem; // Semaphore for only readers critical section
 
-
+/* writer
+ *    process for writer threads, uses the rw_sem to syncornize 
+ *    with the other threads. When it can execute, removes a letter
+ *    announces that its writing, and then pops a char off the end
+ *
+ * Args
+ *   param - pointer to thread ID
+ ****************************************************************/
 void *writer(void *param) {
     // Local variables
     long tid = (long)param;
@@ -63,6 +70,14 @@ void *writer(void *param) {
     pthread_exit(NULL);
 }
 
+/* reader
+ *    process for writer threads, uses the rw_sem and cs_sem to 
+ *    syncronize with the other threads. When it can execute, 
+ *    announces its read, and then reads the string to stdout
+ *
+ * Args
+ *   param - pointer to thread ID
+ ****************************************************************/
 void *reader(void *param) {
     // Local variables
     long tid = (long)param;
@@ -100,7 +115,6 @@ void *reader(void *param) {
 }
 
 int main(int argc, char *argv[]) {
-
 
     // Check command line args
     if (argc != 3) {
