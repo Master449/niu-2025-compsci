@@ -12,79 +12,95 @@ Programmer: David Flowers II
 *********************************************************************/
 #include <pthread.h>
 #include <iostream>
+#include <vector>
 #include <string>
 #include <semaphore.h>
 #include <unistd.h>
+#include <numeric>
 
 using std::string;
 using std::cout;
 using std::cerr;
 using std::endl;
 using std::stoi;
+using std::vector;
 
 string shared_data = "All work and no play makes Jack a dull boy.";
 
-sem_t semaphore1, semaphore2;
+int read_counti, reader_count, writer_count;
 
-int read_count;
+sem_t rw_sem; // Semaphore for both readers and writers
+sem_t cs_sem; // Semaphore for only readers critical section
+
 
 void *writer(void *param) {
     // Local variables
-    long tid;
-    tid = (long)param;
+    long tid = (long)param;
 
     // loop until string is empty
     while(!shared_data.empty()) {
         // enter critical section
-        sem_wait(&semaphore1);
+        sem_wait(&rw_sem);
 
+        // double check its not empty
         if (!shared_data.empty()) {
-            shared_data.pop_back();
             printf("writer %ld is writing ...\n", tid);
             fflush(stdout);
+            shared_data.pop_back();
         }
 
         // exit critical section
-        sem_post(&semaphore2);
+        sem_post(&cs_sem);
 
         // sleep
         sleep(1);
     }
+
+    // When done, let stdout know and exit
     printf("writer %ld is exiting ...\n", tid);
     fflush(stdout);
-    
+
     pthread_exit(NULL);
 }
 
 void *reader(void *param) {
     // Local variables
-    long tid;
-    tid = (long)param;
+    long tid = (long)param;
 
     // loop until string is empty
     while(!shared_data.empty()) {
         // enter readers only critical section
-        sem_wait(&semaphore2);
+        sem_wait(&cs_sem);
 
-        if (!shared_data.empty()) {
-            printf("reader %ld is reading ... content : %s\n", tid, shared_data.c_str());
-            fflush(stdout);
-        }
+        // print out the read
+        printf("reader %ld is reading ... content : %s\n", tid, shared_data.c_str());
+        fflush(stdout);
 
         // exit critical section
-        sem_post(&semaphore1);
+        sem_post(&rw_sem);
         
         sleep(1);
     }
-    printf("reader %ld is exiting ...\n", tid);
-    fflush(stdout);
     
+    int remaining = (writer_count - reader_count);
+
+    // When done, let stdout know and exit
+    printf("reader %ld is exiting ...\n", tid);
+
+    // print out the remainders
+    printf("There are still %i writers waiting on the semaphore...\n", remaining);
+    fflush(stdout);
+
+    // signal to let them exit
+    for (int i = 0; i < remaining; i++) {
+        sem_post(&rw_sem);
+    }    
+
     pthread_exit(NULL);
 }
 
 int main(int argc, char *argv[]) {
 
-    int reader_count, writer_count, rc;
 
     // Check command line args
     if (argc != 3) {
@@ -100,72 +116,67 @@ int main(int argc, char *argv[]) {
         std::cerr << "Invalid Argument " <<  e.what() << endl;
         exit(2);
     }
-
+    
+    // verify that the input is positive
     if (reader_count <= 0 || writer_count <= 0) {
         std::cerr << "Args must be positive integers." << endl;
         exit(3);
     }
+    
+    // create pthread_t arrays holding the readers and writers
+    pthread_t reader_threads[reader_count];
+    pthread_t writer_threads[writer_count];
 
     cout << "*** Reader-Writer Problem Simulation ***" << endl
          << "Number of reader threads: " << reader_count << endl
          << "Number of writer threads: " << writer_count << endl;
 
     // Initialization of semaphores
-    if(sem_init(&semaphore1, 0, 1) != 0) { 
-        cerr << "Semaphore init failed" << endl;
+    if (sem_init(&rw_sem, 0, 1) != 0) {
+        cerr << "Read/Write semaphore init failed" << endl;
         exit(4);
     }
-    
-    if (sem_init(&semaphore2, 0, 1) != 0) {
-        cerr << "Semaphore init failed" << endl;
+
+    if (sem_init(&cs_sem, 0, 1) != 0) {
+        cerr << "Reader Only semaphore init failed" << endl;
         exit(4);
     }
-    
-    pthread_t reader_threads[reader_count];
-    pthread_t writer_threads[writer_count];
-    
+
     // Initialize reader threads
     for(long i = 0; i < reader_count; i++) {
-        rc = pthread_create(&reader_threads[i], NULL, reader, (void *)i);
-        if (rc) {
-           cerr << "Failed to init. reader thread" << endl;
-           exit(5);
-        }
+       if (pthread_create(&reader_threads[i], NULL, reader, (void *)i) != 0) {
+          cerr << "Failed to init. reader thread" << endl;
+          exit(5);
+       }
     }
 
     // Initialize writer threads
     for(long j = 0; j < writer_count; j++) {
-        rc = pthread_create(&writer_threads[j], NULL, writer, (void *)j);
-        if (rc) {
-            cerr << "Failed to init. writer thread" << endl;
-            exit(6);
-        }
+       if (pthread_create(&writer_threads[j], NULL, writer, (void *)j) != 0) {
+          cerr << "Failed to init. writer thread" << endl;
+          exit(6);
+       }
     }
 
     // Wait for reader threads to finish.
     for (long i = 0; i < reader_count; i++) {
-        rc = pthread_join(reader_threads[i], NULL);
-        if (rc) {
-            cerr << "Failed to init. writer thread" << endl;
-            exit(6);
-        }
+        pthread_join(reader_threads[i], NULL);
     }
 
     // Wait for writer threads to finish.
     for (long j = 0; j < writer_count; j++) {
-        rc = pthread_join(writer_threads[j], NULL);
-        if (rc) {
-            cerr << "Failed to init. writer thread" << endl;
-            exit(6);
-        }
+        pthread_join(writer_threads[j], NULL);
     }
-
-    sem_destroy(&semaphore1);
-    sem_destroy(&semaphore2);
-
+    
+    // print out done message
     cout << "All threads are done." << endl;
+
+    // destroy semaphores
+    sem_destroy(&rw_sem);
+    sem_destroy(&cs_sem);
+
+    // indicate that all resources are cleaned up
     cout << "Resources cleaned up." << endl;
 
-    // Cleanup and exit.
     return 0;
 }

@@ -16,7 +16,7 @@ clean:
 	rm $(EC_TARGET)
 
 # Create tar for turn in
-zip: clean
+zip: 
 	cd ..; tar -cvvf $(TARGET).tar $(CURRENT_DIR); cd $(CURRENT_DIR); mv ../$(TARGET).tar .
 
 build:
