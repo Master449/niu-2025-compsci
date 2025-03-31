@@ -46,7 +46,7 @@ void *writer(void *param) {
 
     // loop until string is empty
     while(!shared_data.empty()) {
-        // enter critical section
+        // wait until it gets the signal from reader
         sem_wait(&rw_sem);
 
         // double check its not empty
@@ -56,7 +56,7 @@ void *writer(void *param) {
             shared_data.pop_back();
         }
 
-        // exit critical section
+        // let reader know its done
         sem_post(&cs_sem);
 
         // sleep
@@ -84,19 +84,20 @@ void *reader(void *param) {
 
     // loop until string is empty
     while(!shared_data.empty()) {
-        // enter readers only critical section
+        // waits for the writer signal
         sem_wait(&cs_sem);
 
         // print out the read
         printf("reader %ld is reading ... content : %s\n", tid, shared_data.c_str());
         fflush(stdout);
 
-        // exit critical section
+        // gives the signal to writer to let it know its done
         sem_post(&rw_sem);
         
         sleep(1);
     }
     
+    // remaining processess to signal to exit
     int remaining = (writer_count - reader_count);
 
     // When done, let stdout know and exit

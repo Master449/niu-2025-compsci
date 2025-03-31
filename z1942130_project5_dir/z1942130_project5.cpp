@@ -50,10 +50,10 @@ void *writer(void *param) {
         // enter critical section
         sem_wait(&rw_sem);
 
-
+        // announce write
         printf("writer %ld is writing ...\n", tid);
         fflush(stdout);
-        
+
         // double check its not empty
         if (!shared_data.empty()) {
             shared_data.pop_back();
@@ -104,13 +104,13 @@ void *reader(void *param) {
         // exit reader only critical section
         sem_post(&cs_sem);
 
-        // print out the read
+        // announce read
         printf("reader %ld is reading ... content : %s\n", tid, shared_data.c_str());
 
         // enter reader only critical section
         sem_wait(&cs_sem);
 
-        // decrement reader total
+        // decrement reader total, and print
         read_count--;
 
         printf("read_count decrements to: %d.\n", read_count);
