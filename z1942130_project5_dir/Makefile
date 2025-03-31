@@ -13,6 +13,7 @@ $(TARGET): $(SOURCE)
 
 clean:
 	rm $(TARGET)
+	rm $(EC_TARGET)
 
 # Create tar for turn in
 zip: clean
