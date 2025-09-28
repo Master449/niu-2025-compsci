@@ -1,0 +1,158 @@
+*****************************************************************
+*                                                               *
+* CSCI 360-0001               NOTES                 SPRING 2024 *
+*                                                               *
+* DEVELOPER NAME: David Flowers II                              *
+*                                                               *
+*****************************************************************
+*
+* - Comment every line as you write it
+* - Comments are either:
+*        1. Asterisk in Column 1
+*        2. 1 Space after Operand
+*
+* - Some instructions set a condition code
+*        The condition code relfects the results of the execution
+*          0 Result is equal to 0       (0)
+*          1 Result is less than 0      (Negative)
+*          2 Result is greater than 0   (Positive)
+*          3 Overflow                   (Overflow)
+*     
+* - RX Instructions involve D(X,B)
+*        4 bytes long
+*        Encoding is 4th from the bottom on p.2 on the Yellow Card
+*
+* - Only allowed to use registers 2 - 11
+*        The rest have specific uses
+*
+* - Reference Summary Quick Guide
+*        MACHINE INST FORMAT p. 2. - 3
+*        MACHINE INSTRUCT by Mneomic  p. 4 - 11
+*        MACHINE INSTRUCTIONS By Operation Code p. 12 - 13
+*        PSW (BC MODE) p. 22
+*        PROGRAM INTERUPT CODES p. 23
+*        CODE ASSIGNMENTS Code Tables p. 34 - 37
+*
+* - We should memorize S0C:
+*        S0C1  Operation  Exception (Non valid instruction)
+*        S0C4  Protection Exception (Valid Storage doesn't belong to you)
+*        S0C5  Addressing Exception (Trying to use invalid address)
+*        S0C6  Specification Exception (Load storage not on Fullword)
+*        S0C7  Data Exception (Dealing invalid packed decimals in storage)
+*        S0C9  Fixed Point Divide Exception
+*        S0CB  Decimal Divide Exception
+*
+* - Good way to remember:
+*        1   4      5   6
+*        Old People And Snakes
+*
+* Appendix D of the Textbook has a good explanation of them
+*
+* Besides syntax errors we will run into ABENDS (like core dumps)
+* Last 4 bytes of an ABEND will be the S0C code up there
+* 
+* After the type of ABEND:
+*   First two bits are the length of instruction
+*        Binary * 2 = Length
+*
+* Next two bits are the Condition Code
+*        After an instruction sets the CC
+*            NEVER set by the abending instruction
+*            Check Line 14 for CC
+*   
+* The rest is the address of next instruction
+* Figure out the length, and subtract the address of the last 3 bytes of the PSW
+* 
+* so lets say
+*        A_ 00 10 AB
+*
+* A in Binary = 10 10
+*        First two are the length / 2 so its length is 4
+*        Second two are the Condition Code, CC is 2 (Positive)
+*
+* 00 10 AB are the Address of the next instruction 
+*
+* EXAMPLE ABEND
+* 
+* ADD THIS TO YELLOW CARD
+*   op code begins with a 0 - 3 it is a 2 byte instruction
+*   op code begins with a 4 - B it is a 4 byte instruction
+*   op code begins with a C - F is a 6 byte instruction
+*
+*   CSECTS and LTORGS always begin on a double-word boundary (8 bytes)
+*   
+**************************************************************
+******************** RX INSTRUCTIONS *************************
+**************************************************************
+*
+* copies or loads in the 4 bytes at the absolute 
+* address represented by D(X,B) into R register
+label    L     R,D(X,B)
+*
+* Stores the contents of R at the absolute address
+* represented by D(X,B)
+label    ST    R,D(X,B)
+*
+* Loads the 24-bit absolute ADDRESS represented 
+* by D(X,B) into the last 3 bytes of R, also
+* 0s out the first byte
+label    LA    R,D(X,B)
+*
+* Adds the fullword value at the absolute address, 
+* represnete dby D(X,B) to the value stored in R
+label    A     R,D(X,B)
+*
+* Takes the 4 bytes from the absolute address 
+* represented by D(X,B) and subtracts it from the content of R
+label    S     R,D(X,B)
+*
+**************************************************************
+******************** RR INSTRUCTIONS *************************
+**************************************************************
+*
+* Copies the contents of R2 into R1
+label    LR    R1,R2
+*
+* Add the contents of R2 to R1, Result is placed in R1
+label    AR    R1,R2
+*
+* Subtracts the contents of R2 from R1
+label    SR    R1,R2
+*
+**************************************************************
+******************** ASSIST INSTRUCTIONS *********************
+**************************************************************
+*
+* Used to dump the contents of GPRs or program storage
+        XDUMP  ,              General Purpose Registers
+        XDUMP  D(X,B),length  Program storage from D(X,B) to length
+*       This will dump at (or exactly) the preceding 32bit boundary
+*
+**************************************************************
+******************** EXAMPLE PROGRAM *************************
+**************************************************************
+*
+*label   instr op             line doc up to 71
+MAIN     CSECT
+         USING MAIN,15        ESTABLISH ADDRESSABILITY ON REG 15
+*
+         L     2,NUM1         LOAD R2 WITH NUM1
+         L     3,NUM2         LOAD R3 WITH NUM2
+*
+         AR    2,3            R2 = R2 + R3
+*
+         XDECO 2,OUTSUM       CONVERT TO OUTPUT
+*        XDECI                INPUT VERSION
+         XPRNT PRNTLNE,133    SEND TO PRINT BUFFER
+*
+         BCR   B'1111',14     RETURN
+         LTORG                
+*
+NUM1     DC    F'23'          DEFINE CONTSANT 23
+NUM2     DC    F'5'           DEFINE CONSTANT 5
+OUTSUM   DS    F              RAW STORAGE
+*
+PRNTLNE  DC    C'1'
+         DC    C'THE SUM OF '
+*
+         END   MAIN           END MAIN PROGRAM
