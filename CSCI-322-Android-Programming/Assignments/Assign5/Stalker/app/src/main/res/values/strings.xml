@@ -1,0 +1,73 @@
+<resources>
+    <string name="app_name">S.T.A.L.K.E.R. Factions</string>
+
+    <string name="lonDesc">Loners are a nomadic semi-unified group of Stalkers who simply live off
+        the Zone in order to earn some coin for their daily lives. Loners are neutral toward almost
+        all other factions, but do have complications with the Military, and, to a lesser extent,
+        the Mercenaries, and openly oppose the Bandit faction for their actions against free
+        Stalkers. Most Loners are only concerned with the riches of the Zone, and do not pay
+        attention to the other factions\' hatred for each other - provided, of course, they do not
+        threaten them. Because of this, Loners are often recruited by various factions as mercenaries.</string>
+
+    <string name="monDesc">The Monolith were originally ordinary Stalkers who believed in the power
+        of the Wish Granter. Prior to Clear Sky, the faction reportedly made an exodus to the
+        Zone\'s center and disappeared. After the large emission during the events of
+        S.T.A.L.K.E.R.: Clear Sky, they became active. The Monolith are the front line soldiers
+        of the C-Consciousness, and would rather die than let any Stalker reach the sacred crystal.
+        Although capable of higher reasoning and emotion, they nevertheless carry out orders with
+        fanatic effectiveness. The Monolith faction has no allies, and actively attacks all other
+        factions.</string>
+
+    <string name="milDesc">The Ukrainian military supposedly has the Zone contained in order to
+        prevent the looting of dangerous, radioactive materials and to prevent the unauthorized
+        entering of any individuals. They allegedly enforce this rule with a "Shoot-on-sight"
+        declaration.</string>
+
+    <string name="merDesc">The Mercenaries are a private military force operating within the Zone.
+        They are professional soldiers who will do just about anything in the Zone, ranging from
+        retrieval, assassinations, body-guarding, etc. Though, of course, it must be for the right
+        price. Mercenaries are usually neutral toward other factions, as they are a source of
+        income, unless they interfere with their operations.</string>
+
+    <string name="freDesc">Freedom is a clan of stalkers who fight for free access to the Zone,
+        and their views are somewhat anarchistic, believing nobody can own the Zone and seeing
+        it both as a scientific marvel and as a free life inside the Zone\'s borders. In contrast
+        to the regimented, highly disciplined atmosphere of Duty, the members of Freedom have a
+        much more relaxed, informal attitude. They appear to have a more casual command structure,
+        often referring to each other as "bro", with a number of members shown making regular
+        recreational use of alcohol and marijuana. This further reflects their status as a clan of
+        like-minded free spirits, unlike the ex-military soldiers of Duty.</string>
+
+    <string name="ecoDesc">The Ecologists are Ukrainian scientists sent into the Zone on behalf of
+        the government, but seem to be affiliated with outside organizations (namely, foreign
+        governments who, knowing how dangerous the Zone is, and with their own goals towards the
+        Zone\'s materials, are willing to pay more to the Ecologists than the Ukranian government
+        does). Their main purpose is the study of all aspects of the Zone, using scientific methods
+        to further explain what the Zone is, and its purpose. The Ecologists are neutral to all
+        factions, and are not involved in any of their conflicts. Due to the military\'s slipping g
+        rip on the Zone, the Ecologists rely on opportunistic Dutyers, Loners, and Mercenaries to
+        provide them protection, and to perform errands that may require combat, since the
+        scientists are better thinkers than fighters.</string>
+
+    <string name="dutDesc">Duty was founded by former military expedition survivors and Stalkers
+        concerned about the looming horrors of the Zone. They are one of the largest Stalker clans
+        in the Zone. They have a strict military code (such as no smoking, maintaining one\'s weapons
+        , etc...) and operate in a military fashion, using ranks like Sergeant, Major, Captain, and
+        General. Their goal is to contain and destroy the Zone, fearing that it will spread to the
+        outside world.</string>
+
+    <string name="cleDesc">Clear Sky is the most secretive faction within the Zone. The faction was
+        disbanded after losing the majority of their manpower during the events in S.T.A.L.K.E.R.:
+        Clear Sky. The Clear Sky faction was originally composed of former researchers of the
+        C-Consciousness who broke away from them in order to conduct their own research on how to
+        either destroy or contain the zone. The other members of the faction were ordinary stalkers
+        who joined their cause for their own reasons.</string>
+
+    <string name="banDesc">The Bandits are raiders and marauders of the Zone, ranging from petty
+        thugs and gangsters to organized crime syndicates. Apart from Freedom, which treats them
+        with marginal contempt, everyone hates the Bandits due to their nefarious acts of robbing
+        and exploiting honest Stalkers. Most Bandits are unorganized and leaderless; there are
+        only a few known Bandit leaders and camps, and even then their groups are still fairly
+        disorganized, with underlings always trying to take control by overthrowing the previous
+        leader.</string>
+</resources>
